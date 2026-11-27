@@ -54,6 +54,8 @@ const STRINGS = {
       ['🚗', 'Fahrt zum Arzt', 'Ich brauche eine Fahrt zum Arzttermin am Montag.'],
       ['📱', 'Handy', 'Mein Handy funktioniert nicht, ich kann keine Videoanrufe machen.'],
       ['☕', 'Gesellschaft', 'Ich bin heute allein und würde gern reden.'],
+      ['🏠', 'Haushalt', 'Ich kann die Glühbirne in der Küche nicht wechseln und der Müll muss raus.'],
+      ['✉️', 'Briefe', 'Ich verstehe einen Brief von der Krankenkasse nicht.'],
     ],
     emergencyTitle: '⚠️ Das klingt nach einem Notfall.',
     emergencyBody: 'Notfälle gehen direkt an die 112, nicht an Helfer.',
@@ -91,6 +93,14 @@ const STRINGS = {
     cType: 'Nachricht schreiben…',
     cSend: 'Senden',
     cError: 'Verbindung fehlgeschlagen: {msg}',
+    everyday: 'Hilfe im Alltag — nicht nur im Notfall.',
+    repeatWeekly: '🔁 Jede Woche wiederholen',
+    demoAs: 'Demo als',
+    rateTitle: 'Wie war die Hilfe von {name}?',
+    rateThanks: 'Danke für Ihre Bewertung! ⭐',
+    tagPunctual: 'Pünktlich', tagKind: 'Freundlich', tagHelpful: 'Sehr hilfreich',
+    rateSend: 'Bewertung senden',
+    weeklyVisit: '📅 Jede Woche kommt jemand zu Besuch.',
   },
   en: {
     greeting: 'Good morning, {name}! 👋',
@@ -121,6 +131,8 @@ const STRINGS = {
       ['🚗', 'Ride to doctor', 'I need a ride to my doctor appointment on Monday.'],
       ['📱', 'Phone', "My phone isn't working, I can't make video calls."],
       ['☕', 'Company', "I'm alone today and would like someone to talk to."],
+      ['🏠', 'Household', "I can't change the kitchen light bulb and the bins need taking out."],
+      ['✉️', 'Letters', "I don't understand a letter from my health insurance."],
     ],
     emergencyTitle: '⚠️ This sounds like an emergency.',
     emergencyBody: 'Emergencies go straight to 112, not to volunteers.',
@@ -157,17 +169,27 @@ const STRINGS = {
     cType: 'Type a message…',
     cSend: 'Send',
     cError: 'Connection failed: {msg}',
+    everyday: 'Help with everyday life — not only emergencies.',
+    repeatWeekly: '🔁 Repeat every week',
+    demoAs: 'Demo as',
+    rateTitle: 'How was {name}’s help?',
+    rateThanks: 'Thank you for your rating! ⭐',
+    tagPunctual: 'On time', tagKind: 'Kind', tagHelpful: 'Very helpful',
+    rateSend: 'Send rating',
+    weeklyVisit: '📅 Someone visits you every week.',
   },
 }
 
 export const TYPE_LABEL_I18N = {
   de: {
     shopping: 'Einkauf / Apotheke', tech: 'Hilfe mit Handy & Technik', companionship: 'Besuch & Gesellschaft',
-    accompany: 'Begleitung zum Arzt', transport: 'Fahrt / Transport', other: 'Allgemeine Hilfe', medical: 'Medizinische Frage (→ Pflege/Arzt)',
+    accompany: 'Begleitung zum Arzt', transport: 'Fahrt / Transport', other: 'Allgemeine Hilfe',
+    household: 'Haushalt & Garten', paperwork: 'Briefe & Formulare', meals: 'Essen & Kochen', medical: 'Medizinische Frage (→ Pflege/Arzt)',
   },
   en: {
     shopping: 'Groceries / pharmacy', tech: 'Phone & tech help', companionship: 'Companionship visit',
-    accompany: 'Accompany to doctor', transport: 'Ride / transport', other: 'General help', medical: 'Medical question (→ nurse/doctor)',
+    accompany: 'Accompany to doctor', transport: 'Ride / transport', other: 'General help',
+    household: 'Household & garden', paperwork: 'Letters & paperwork', meals: 'Meals & cooking', medical: 'Medical question (→ nurse/doctor)',
   },
 }
 

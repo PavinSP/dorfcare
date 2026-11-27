@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, rankVolunteers } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v2'
+const KEY = 'dorfconnect-state-v3'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -61,7 +61,7 @@ export const actions = {
     })
   },
 
-  createRequest(residentId, text, type) {
+  createRequest(residentId, text, type, { recurring = false } = {}) {
     let id
     setState((s) => {
       const r = res(s, residentId)
@@ -79,7 +79,7 @@ export const actions = {
         approx: approximate(r, r.id),
         createdAt: Date.now(),
         status: notified.length ? 'open' : 'escalated',
-        notified, declined: [], assignedTo: null,
+        notified, declined: [], assignedTo: null, recurring,
       })
       log(
         s,
@@ -124,19 +124,55 @@ export const actions = {
     })
   },
 
-  completeRequest(reqId) {
+  /**
+   * Volunteer marks the task done and leaves PRIVATE feedback about the visit.
+   * feedback = { stars: 1-5, flags: ['lonely' | 'struggling' | 'unwell' | 'home-safety'] }
+   * Resident ratings are coordinator-only and never affect access to emergency or medical help.
+   */
+  completeRequest(reqId, feedback = {}) {
     setState((s) => {
       const q = s.requests.find((x) => x.id === reqId)
       const v = vol(s, q.assignedTo)
+      const r = res(s, q.residentId)
       const pts = POINTS_FOR_TYPE[q.type] ?? 10
       q.status = 'completed'
       q.completedAt = Date.now()
       q.points = pts
+      q.volunteerFeedback = feedback
       v.points += pts
       v.completed += 1
       v.reliability = Math.min(100, v.reliability + 1)
       v.status = 'available'
+      if (feedback.stars) { r.rating.sum += feedback.stars; r.rating.count += 1 }
+      for (const flag of feedback.flags ?? []) r.flags.unshift({ t: Date.now(), by: v.name.split(' ')[0], flag })
       log(s, `🎉 ${v.name} completed the task: +${pts} points. Address access removed.`, 'ok')
+      if (feedback.flags?.length) log(s, `💛 ${v.name.split(' ')[0]} noted ${r.name} may need more everyday support.`, 'support')
+      return s
+    })
+  },
+
+  /** Resident rates the volunteer (public to the community as an average). */
+  rateVolunteer(reqId, stars, tags = []) {
+    setState((s) => {
+      const q = s.requests.find((x) => x.id === reqId)
+      const v = vol(s, q.assignedTo)
+      q.residentRating = { stars, tags }
+      v.rating.sum += stars
+      v.rating.count += 1
+      // Reliability reflects verified completion + reviewed feedback (small nudge, never a big swing).
+      v.reliability = Math.max(0, Math.min(100, Math.round(v.reliability + (stars - 4) * 0.5)))
+      log(s, `⭐ ${res(s, q.residentId).name.split(' ')[0]} rated ${v.name.split(' ')[0]} ${stars}/5${tags.length ? ` (${tags.join(', ')})` : ''}.`)
+      return s
+    })
+  },
+
+  /** Coordinator turns a support flag into regular everyday help. */
+  setupWeeklyVisit(residentId) {
+    setState((s) => {
+      const r = res(s, residentId)
+      r.flags = r.flags.map((f) => ({ ...f, handled: true }))
+      r.weeklyVisit = true
+      log(s, `📅 Coordinator set up a weekly visit for ${r.name}.`, 'support')
       return s
     })
   },

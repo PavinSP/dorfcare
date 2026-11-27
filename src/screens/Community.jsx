@@ -1,7 +1,10 @@
 import CommunityMap, { MapLegend } from '../components/CommunityMap'
 import { Card } from '../components/ui'
 import { VILLAGE_NAME } from '../data/seed'
-import { useStore } from '../store'
+import { actions, useStore } from '../store'
+
+const FLAG_LABEL = { lonely: '😔 lonely', struggling: '🧺 struggling with daily tasks', unwell: '🤒 seemed unwell', 'home-safety': '⚠️ home safety' }
+const avg = (r) => (r.count ? (r.sum / r.count).toFixed(1) : '–')
 
 export default function Community() {
   const state = useStore()
@@ -10,6 +13,7 @@ export default function Community() {
   const done = state.requests.filter((q) => q.status === 'completed').length
   const checkedIn = state.residents.filter((r) => r.lastCheckIn).length
   const leaderboard = [...state.volunteers].filter((v) => v.verified).sort((a, b) => b.points - a.points)
+  const needsSupport = state.residents.filter((r) => r.flags.some((f) => !f.handled))
 
   return (
     <div className="space-y-5">
@@ -32,6 +36,26 @@ export default function Community() {
         </div>
 
         <div className="space-y-5">
+          <Card className="border-2 border-amber-200">
+            <h3 className="font-semibold">💛 Needs more everyday support</h3>
+            <p className="text-xs text-slate-500">From volunteers' private visit notes — not emergencies.</p>
+            {needsSupport.length === 0 && <p className="mt-2 text-sm text-slate-400">Nobody flagged right now.</p>}
+            {needsSupport.map((r) => (
+              <div key={r.id} className="mt-3 rounded-xl bg-amber-50 p-3 text-sm">
+                <p><b>{r.name}</b>, {r.age} <span className="text-xs text-slate-500">· {r.support}</span></p>
+                {r.flags.filter((f) => !f.handled).slice(0, 3).map((f, i) => (
+                  <p key={i} className="text-xs text-amber-900">{FLAG_LABEL[f.flag] ?? f.flag} — noted by {f.by}</p>
+                ))}
+                <button
+                  onClick={() => { actions.setupWeeklyVisit(r.id); actions.createRequest(r.id, `Weekly visit: coffee, chat and help with small tasks for ${r.name.split(' ')[0]}`, 'companionship', { recurring: true }) }}
+                  className="mt-2 w-full rounded-lg bg-amber-500 py-1.5 font-semibold text-white"
+                >
+                  Set up weekly visit
+                </button>
+              </div>
+            ))}
+          </Card>
+
           <Card>
             <h3 className="font-semibold">☀️ Morning check-ins (09:00)</h3>
             {state.residents.map((r) => {
@@ -53,9 +77,22 @@ export default function Community() {
             {leaderboard.map((v, i) => (
               <div key={v.id} className="mt-2 flex justify-between text-sm">
                 <span>{['🥇', '🥈', '🥉'][i] ?? '·'} {v.name}</span>
-                <span className="text-slate-500">{v.points} pts · {v.reliability}/100</span>
+                <span className="text-slate-500">{v.points} pts · ★ {avg(v.rating)} · {v.reliability}/100</span>
               </div>
             ))}
+          </Card>
+
+          <Card>
+            <h3 className="font-semibold">🔒 Requester ratings <span className="text-xs font-normal text-slate-500">(coordinator only)</span></h3>
+            {state.residents.map((r) => (
+              <div key={r.id} className="mt-2 flex justify-between text-sm">
+                <span>{r.name}</span>
+                <span className={r.rating.count && r.rating.sum / r.rating.count < 3.5 ? 'text-amber-700' : 'text-slate-500'}>
+                  ★ {avg(r.rating)} ({r.rating.count})
+                </span>
+              </div>
+            ))}
+            <p className="mt-2 text-xs text-slate-500">A low score triggers a friendly coordinator call — never exclusion from help.</p>
           </Card>
 
           <Card>

@@ -7,16 +7,27 @@ import { canListen, listen, speak, stopSpeaking } from '../lib/speech'
 import { actions, useStore } from '../store'
 import Companion from './Companion'
 
-const ME = 'maria'
-
 export default function Resident() {
   const state = useStore()
   const { t } = useLang()
-  const me = state.residents.find((r) => r.id === ME)
+  const [meId, setMeId] = useState('maria')
+  const me = state.residents.find((r) => r.id === meId)
   const [view, setView] = useState('home')
 
   return (
     <div className="mx-auto w-full max-w-md">
+      <div className="mb-3 flex flex-wrap items-center justify-center gap-1 text-sm">
+        <span className="text-slate-500">{t('demoAs')}:</span>
+        {state.residents.map((r) => (
+          <button
+            key={r.id}
+            onClick={() => { setMeId(r.id); setView('home') }}
+            className={`rounded-full px-3 py-1 ${r.id === meId ? 'bg-teal-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200'}`}
+          >
+            {r.name.split(' ')[0]}, {r.age}
+          </button>
+        ))}
+      </div>
       <div className="overflow-hidden rounded-[2.5rem] border-8 border-slate-900 bg-white shadow-2xl">
         <div className="flex items-center justify-between bg-slate-900 px-6 py-1.5 text-xs text-white">
           <span>09:00</span><span>DorfConnect</span><span>🔋 82%</span>
@@ -25,7 +36,7 @@ export default function Resident() {
           {view === 'home' && <Home me={me} state={state} go={setView} />}
           {view === 'help' && <Help me={me} go={setView} />}
           {view === 'companion' && <Companion me={me} go={setView} />}
-          {view === 'doctor' && <Doctor state={state} go={setView} />}
+          {view === 'doctor' && <Doctor me={me} state={state} go={setView} />}
           {view === 'sos' && <Sos me={me} go={setView} />}
         </div>
       </div>
@@ -36,12 +47,12 @@ export default function Resident() {
 
 function Home({ me, state, go }) {
   const { t, lang, locale } = useLang()
-  const myRequest = state.requests.find((q) => q.residentId === ME && q.status !== 'completed')
-  const lastDone = state.requests.find((q) => q.residentId === ME && q.status === 'completed')
+  const myRequest = state.requests.find((q) => q.residentId === me.id && q.status !== 'completed')
+  const lastDone = state.requests.find((q) => q.residentId === me.id && q.status === 'completed')
   const myAppointments = state.rotation.flatMap((d) =>
-    d.slots.filter((s) => s.bookedBy === ME).map((s) => `${DAY_I18N[lang][d.day] ?? d.day} ${s.time} · ${d.who}`),
+    d.slots.filter((s) => s.bookedBy === me.id).map((s) => `${DAY_I18N[lang][d.day] ?? d.day} ${s.time} · ${d.who}`),
   )
-  const myMedical = state.medicalQueue.find((m) => m.residentId === ME)
+  const myMedical = state.medicalQueue.find((m) => m.residentId === me.id)
   const [now] = useState(() => new Date())
   const today = now.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' })
 
@@ -51,16 +62,19 @@ function Home({ me, state, go }) {
         <p className="text-sm text-slate-500">{today} · {VILLAGE_NAME}</p>
         <h1 className="text-3xl font-bold">{t('greeting', { name: me.name.split(' ')[0] })}</h1>
         <p className="mt-1 text-lg text-slate-600">{t('howAreYou')}</p>
+        <p className="mt-1 text-xs text-slate-400">{me.support} · {t('everyday')}</p>
       </div>
 
       {me.lastCheckIn === 'today-ok' && <div className="rounded-2xl bg-green-50 p-4 text-green-800">{t('checkedIn')}</div>}
 
-      {myRequest && <RequestStatus q={myRequest} state={state} />}
-      {!myRequest && lastDone && (
+      {myRequest && <RequestStatus q={myRequest} me={me} state={state} />}
+      {!myRequest && lastDone && !lastDone.residentRating && <RateCard q={lastDone} state={state} />}
+      {!myRequest && lastDone?.residentRating && (
         <div className="rounded-2xl bg-amber-50 p-4 text-amber-900">
           {t('helpedYou', { name: state.volunteers.find((v) => v.id === lastDone.assignedTo)?.name.split(' ')[0] })}
         </div>
       )}
+      {me.weeklyVisit && <div className="rounded-2xl bg-teal-50 p-4 text-teal-900">{t('weeklyVisit')}</div>}
       {myMedical && (
         <div className="rounded-2xl bg-violet-50 p-4 text-violet-900">
           {myMedical.status === 'answered' ? t('medAnswered') : t('medWaiting')}
@@ -71,7 +85,7 @@ function Home({ me, state, go }) {
       ))}
 
       <div className="space-y-3 pt-2">
-        <BigButton className="bg-green-600 text-white" onClick={() => actions.checkIn(ME)}>{t('btnWell')}</BigButton>
+        <BigButton className="bg-green-600 text-white" onClick={() => actions.checkIn(me.id)}>{t('btnWell')}</BigButton>
         <BigButton className="border-2 border-slate-300 bg-white" onClick={() => go('help')}>{t('btnHelp')}</BigButton>
         <BigButton className="border-2 border-teal-300 bg-teal-50 text-teal-900" onClick={() => go('companion')}>{t('btnCompanion')}</BigButton>
         <BigButton className="border-2 border-slate-300 bg-white" onClick={() => go('doctor')}>{t('btnDoctor')}</BigButton>
@@ -81,10 +95,9 @@ function Home({ me, state, go }) {
   )
 }
 
-function RequestStatus({ q, state }) {
+function RequestStatus({ q, me, state }) {
   const { t, lang } = useLang()
   const helper = state.volunteers.find((v) => v.id === q.assignedTo)
-  const me = state.residents.find((r) => r.id === ME)
   if (q.status === 'open')
     return (
       <div className="rounded-2xl bg-orange-50 p-4 text-orange-900">
@@ -99,7 +112,7 @@ function RequestStatus({ q, state }) {
       <p className="text-sm">
         {t('comingMeta', { type: TYPE_LABEL_I18N[lang][q.type], dist: formatDistance(haversineKm(helper, me)), rel: helper.reliability })}
       </p>
-      <CommunityMap state={state} mode="resident" viewerId={ME} height={200} />
+      <CommunityMap state={state} mode="resident" viewerId={me.id} height={200} />
     </div>
   )
 }
@@ -109,6 +122,7 @@ function Help({ me, go }) {
   const [text, setText] = useState('')
   const [listening, setListening] = useState(false)
   const [consent, setConsent] = useState(true)
+  const [recurring, setRecurring] = useState(false)
   const stopRef = useRef(null)
   const type = text.trim() ? classifyRequest(text) : null
 
@@ -119,7 +133,7 @@ function Help({ me, go }) {
   }
 
   const submit = () => {
-    actions.createRequest(me.id, text, type)
+    actions.createRequest(me.id, text, type, { recurring })
     go('home')
   }
 
@@ -169,6 +183,12 @@ function Help({ me, go }) {
               <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 h-5 w-5" />
               {t('consent')}
             </label>
+            {type !== 'medical' && (
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input type="checkbox" checked={recurring} onChange={(e) => setRecurring(e.target.checked)} className="h-5 w-5" />
+                {t('repeatWeekly')}
+              </label>
+            )}
             <BigButton disabled={!consent} className="bg-teal-600 text-white disabled:opacity-40" onClick={submit}>{t('submit')}</BigButton>
           </>
         )
@@ -177,7 +197,7 @@ function Help({ me, go }) {
   )
 }
 
-function Doctor({ state, go }) {
+function Doctor({ me, state, go }) {
   const { t, lang } = useLang()
   return (
     <div className="space-y-4">
@@ -193,7 +213,7 @@ function Doctor({ state, go }) {
             <div className="mt-2 flex flex-wrap gap-2">
               {free.length === 0 && <span className="text-sm text-slate-400">{t('fullyBooked')}</span>}
               {free.slice(0, 4).map((s) => (
-                <button key={s.time} onClick={() => { actions.bookSlot(di, s.si, ME); go('home') }} className="rounded-lg bg-blue-600 px-3 py-2 text-white hover:bg-blue-700">
+                <button key={s.time} onClick={() => { actions.bookSlot(di, s.si, me.id); go('home') }} className="rounded-lg bg-blue-600 px-3 py-2 text-white hover:bg-blue-700">
                   {s.time}
                 </button>
               ))}
@@ -238,6 +258,33 @@ function Sos({ me, go }) {
       <button onClick={() => speak(announcement, speechLang)} className="w-full rounded-xl bg-slate-100 p-3">{t('replay')}</button>
       <BigButton className="border-2 border-slate-300 bg-white" onClick={() => { stopSpeaking(); go('home') }}>{t('cancelOk')}</BigButton>
       <p className="text-xs text-slate-500">{t('sosLegal')}</p>
+    </div>
+  )
+}
+
+function RateCard({ q, state }) {
+  const { t } = useLang()
+  const helper = state.volunteers.find((v) => v.id === q.assignedTo)
+  const [stars, setStars] = useState(0)
+  const [tags, setTags] = useState([])
+  const TAGS = [['punctual', t('tagPunctual')], ['kind', t('tagKind')], ['helpful', t('tagHelpful')]]
+  const toggle = (k) => setTags((x) => (x.includes(k) ? x.filter((y) => y !== k) : [...x, k]))
+  return (
+    <div className="space-y-3 rounded-2xl bg-amber-50 p-4 text-amber-900">
+      <p className="text-lg font-semibold">{t('rateTitle', { name: helper.name.split(' ')[0] })}</p>
+      <div className="flex justify-center gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button key={n} aria-label={`${n} stars`} onClick={() => setStars(n)} className={`text-4xl transition ${n <= stars ? 'scale-110' : 'opacity-30 grayscale'}`}>⭐</button>
+        ))}
+      </div>
+      <div className="flex flex-wrap justify-center gap-2">
+        {TAGS.map(([k, label]) => (
+          <button key={k} onClick={() => toggle(k)} className={`rounded-full px-3 py-1 text-sm ${tags.includes(k) ? 'bg-amber-500 text-white' : 'bg-white ring-1 ring-amber-200'}`}>{label}</button>
+        ))}
+      </div>
+      <button disabled={!stars} onClick={() => actions.rateVolunteer(q.id, stars, tags)} className="w-full rounded-xl bg-amber-500 py-3 font-semibold text-white disabled:opacity-40">
+        {t('rateSend')}
+      </button>
     </div>
   )
 }

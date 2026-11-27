@@ -10,6 +10,9 @@ const SKILL_FOR_TYPE = {
   shopping: 'shopping',
   tech: 'tech',
   companionship: 'companionship',
+  household: 'household',
+  paperwork: 'paperwork',
+  meals: null,
   other: null,
 }
 
@@ -60,6 +63,9 @@ const RULES = [
   ['accompany', ['begleit', 'accompany', 'come with me']],
   ['transport', ['fahr', 'drive', 'ride', 'lift', 'transport', 'termin', 'appointment', 'arzt', 'doctor']],
   ['shopping', ['einkauf', 'grocer', 'shop', 'supermarkt', 'apothek', 'pharmacy', 'medikament', 'medicine', 'brot', 'milch']],
+  ['household', ['glühbirne', 'lampe', 'bulb', 'garten', 'garden', 'rasen', 'lawn', 'schwer', 'heavy', 'tragen', 'carry', 'putzen', 'clean', 'müll', 'bins', 'trash', 'schnee', 'snow', 'reparier', 'repair', 'fix']],
+  ['paperwork', ['brief', 'letter', 'formular', 'behörde', 'finanzamt', 'rathaus', 'rechnung', 'bill', 'antrag', 'paperwork', 'krankenkasse', 'insurance']],
+  ['meals', ['kochen', 'cook', 'mittagessen', 'abendessen', 'meal', 'lunch', 'dinner', 'warmes essen', 'hot food']],
   ['tech', ['handy', 'phone', 'computer', 'tablet', 'internet', 'fernseh', 'tv', 'whatsapp', 'video']],
   ['companionship', ['allein', 'lonely', 'alone', 'gesellschaft', 'reden', 'talk', 'spazier', 'walk', 'kaffee', 'company']],
 ]
