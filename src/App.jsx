@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import Community from './screens/Community'
 import Doctor from './screens/Doctor'
+import Family from './screens/Family'
+import Hausnotruf from './screens/Hausnotruf'
+import Landline from './screens/Landline'
 import Resident from './screens/Resident'
 import Volunteer from './screens/Volunteer'
 import { setLang, useLang } from './i18n'
@@ -9,6 +12,9 @@ import { actions, useStore } from './store'
 // Role is kept in the URL hash (#resident, #volunteer…) so each browser window can show a different role.
 const ROLES = [
   { id: 'resident', label: '👵 Resident', C: Resident },
+  { id: 'landline', label: '☎️ Landline', C: Landline },
+  { id: 'hausnotruf', label: '🔴 Alarm button', C: Hausnotruf },
+  { id: 'family', label: '👪 Family', C: Family },
   { id: 'volunteer', label: '🙋 Volunteer', C: Volunteer },
   { id: 'doctor', label: '🩺 Doctor', C: Doctor },
   { id: 'community', label: '🗺️ Community', C: Community },

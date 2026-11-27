@@ -4,6 +4,20 @@
 export const VILLAGE_NAME = 'Lindenbach'
 export const VILLAGE_CENTER = { lat: 49.8697, lng: 9.9045 }
 
+// One phone number for everything — printed on the fridge card and the notice board. FICTIONAL demo number.
+export const HOTLINE = { display: '0931 000 4711', note: 'Demo-Nummer · fiktiv' }
+
+/** How a resident can reach DorfConnect. Most 80+ residents have a landline, not a smartphone. */
+export const CHANNELS = {
+  app: { de: 'App', en: 'App', icon: '📱' },
+  landline: { de: 'Festnetz', en: 'Landline', icon: '☎️' },
+  button: { de: 'Notrufknopf', en: 'Alarm button', icon: '🔴' },
+  'in-person': { de: 'Persönlich', en: 'In person', icon: '🤝' },
+  family: { de: 'Familie', en: 'Family', icon: '👪' },
+  volunteer: { de: 'Über Helfer', en: 'Via volunteer', icon: '🙋' },
+  coordinator: { de: 'Koordination', en: 'Coordinator', icon: '🧭' },
+}
+
 // Helper: place something `north` / `east` metres away from the village centre.
 const at = (north, east) => ({
   lat: VILLAGE_CENTER.lat + north / 111_320,
@@ -55,6 +69,8 @@ export const initialState = {
       support: 'Lives alone · daily check-in',
       rating: { sum: 29, count: 6 }, flags: [],
       bonds: { anna: { visits: 4, starsSum: 20, rated: 4, favourite: true, since: 'September' } },
+      devices: { smartphone: true, landline: true, alarmButton: false },
+      family: [{ id: 'peter', name: 'Peter Schneider', relation: 'son', relationDe: 'Sohn', city: 'München', consent: true }],
     },
     {
       id: 'helmut', name: 'Helmut Bauer', age: 79, ...at(400, 300),
@@ -64,6 +80,9 @@ export const initialState = {
       support: 'Lives with wife · daily check-in',
       rating: { sum: 14, count: 3 }, flags: [],
       bonds: { thomas: { visits: 2, starsSum: 9, rated: 2, favourite: false, since: 'October' } },
+      devices: { smartphone: false, landline: true, alarmButton: true },
+      hausnotruf: { keyHolder: 'thomas' }, // neighbour volunteer who holds a spare key
+      family: [{ id: 'erika', name: 'Erika Bauer', relation: 'daughter', relationDe: 'Tochter', city: 'Frankfurt', consent: true }],
     },
     {
       id: 'gertrud', name: 'Gertrud Klein', age: 86, ...at(-450, 500),
@@ -74,6 +93,9 @@ export const initialState = {
       rating: { sum: 9, count: 2 },
       flags: [{ t: Date.now() - 3 * 86400000, by: 'Sophie', flag: 'struggling' }],
       bonds: {}, // nobody regular yet → shows up as an isolation risk for the coordinator
+      devices: { smartphone: false, landline: true, alarmButton: true }, // no smartphone at all
+      hausnotruf: { keyHolder: 'sophie' },
+      family: [],
     },
     {
       // Not elderly: everyday support for anyone who is struggling for a while.
@@ -86,6 +108,8 @@ export const initialState = {
       support: 'Temporary support · 6 weeks after surgery · 2 kids',
       rating: { sum: 10, count: 2 }, flags: [],
       bonds: { sophie: { visits: 1, starsSum: 5, rated: 1, favourite: false, since: 'November' } },
+      devices: { smartphone: true, landline: false, alarmButton: false },
+      family: [],
     },
   ],
 
@@ -110,8 +134,14 @@ export const initialState = {
     { id: 'cert', name: 'Volunteer of the month certificate', cost: 300, sponsor: 'Bürgermeister' },
   ],
 
+  // Human village coordinator ("Dorfkümmerin") — answers the hotline, logs requests on behalf, runs the drop-in hour.
+  coordinator: { name: 'Sabine Kraus', role: 'Dorfkümmerin (coordinator)' },
+  dropIn: { day: 'Wednesday', dayDe: 'Mittwoch', time: '10:00–12:00', place: 'Gemeindehaus Lindenbach', note: 'Same morning as the rotating doctor' },
+
   requests: [],
   medicalQueue: [],
+  calls: [], // phone calls: { id, t, residentId, direction: 'outbound'|'inbound', purpose: 'checkin'|'help', result, transcript }
+  alarms: [], // Hausnotruf alarms: { id, t, residentId, kind: 'sos'|'no-daily-press', status, steps: [{t, text}] }
   log: [{ t: Date.now(), text: 'Demo started. 3 volunteers available in Lindenbach.' }],
 }
 

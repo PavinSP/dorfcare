@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, pickNotified, rankVolunteers } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v4'
+const KEY = 'dorfconnect-state-v5'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -52,24 +52,30 @@ export const actions = {
     setState(() => fresh())
   },
 
-  checkIn(residentId) {
+  /** via: 'app' | 'landline' | 'button' | 'in-person' | 'family' | 'volunteer' | 'coordinator' */
+  checkIn(residentId, via = 'app') {
     setState((s) => {
       const r = res(s, residentId)
       r.lastCheckIn = 'today-ok'
-      log(s, `✅ ${r.name} checked in: doing well.`, 'ok')
+      r.lastCheckInVia = via
+      log(s, `✅ ${r.name} checked in (${via}): doing well.`, 'ok')
       return s
     })
   },
 
-  createRequest(residentId, text, type, { recurring = false } = {}) {
+  /**
+   * via: how the request reached us ('app' | 'landline' | 'button' | 'in-person' | 'family' | 'volunteer' | 'coordinator')
+   * by:  who logged it on the resident's behalf (e.g. 'Sabine (coordinator)', 'Peter (son)', 'Anna') — null if the resident did
+   */
+  createRequest(residentId, text, type, { recurring = false, via = 'app', by = null } = {}) {
     let id
     setState((s) => {
       const r = res(s, residentId)
-      id = `req-${Date.now()}`
+      id = `req-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
       r.lastCheckIn = 'today-help'
       if (type === 'medical') {
-        s.medicalQueue.unshift({ id, residentId, text, createdAt: Date.now(), status: 'waiting' })
-        log(s, `🩺 ${r.name} asked a medical question → routed to nurse/doctor queue.`, 'medical')
+        s.medicalQueue.unshift({ id, residentId, text, createdAt: Date.now(), status: 'waiting', via, by })
+        log(s, `🩺 ${r.name} asked a medical question${by ? ` (logged by ${by}, via ${via})` : ''} → routed to nurse/doctor queue.`, 'medical')
         return s
       }
       const ranked = rankVolunteers(s.volunteers, r, type)
@@ -79,12 +85,12 @@ export const actions = {
         approx: approximate(r, r.id),
         createdAt: Date.now(),
         status: notified.length ? 'open' : 'escalated',
-        notified, declined: [], assignedTo: null, recurring,
+        notified, declined: [], assignedTo: null, recurring, via, by,
       })
       log(
         s,
         notified.length
-          ? `🙋 ${r.name} needs help (${type}). Notified ${notified.map((n) => vol(s, n).name.split(' ')[0]).join(', ')}.`
+          ? `🙋 ${r.name} needs help (${type})${via !== 'app' ? ` via ${via}` : ''}${by ? `, logged by ${by}` : ''}. Notified ${notified.map((n) => vol(s, n).name.split(' ')[0]).join(', ')}.`
           : `⚠️ ${r.name} needs help but no volunteer is available → coordinator alerted.`,
         'help',
       )
@@ -169,6 +175,46 @@ export const actions = {
       // Reliability reflects verified completion + reviewed feedback (small nudge, never a big swing).
       v.reliability = Math.max(0, Math.min(100, Math.round(v.reliability + (stars - 4) * 0.5)))
       log(s, `⭐ ${r.name.split(' ')[0]} rated ${v.name.split(' ')[0]} ${stars}/5${tags.length ? ` (${tags.join(', ')})` : ''}.`)
+      return s
+    })
+  },
+
+  /** Phone channel: record a call (outbound check-in call or inbound hotline call). Returns the call id. */
+  logCall({ residentId, direction, purpose, result, transcript = [] }) {
+    const id = `call-${Date.now()}`
+    setState((s) => {
+      const r = res(s, residentId)
+      s.calls.unshift({ id, t: Date.now(), residentId, direction, purpose, result, transcript })
+      log(s, `☎️ ${direction === 'outbound' ? 'Check-in call to' : 'Hotline call from'} ${r.name}: ${result}.`, 'call')
+      return s
+    })
+    return id
+  },
+
+  /** Hausnotruf: the resident pressed the wrist button (kind 'sos') or missed the daily "I'm OK" press. Returns alarm id. */
+  hausnotrufAlarm(residentId, kind = 'sos') {
+    const id = `alarm-${Date.now()}`
+    setState((s) => {
+      const r = res(s, residentId)
+      s.alarms.unshift({ id, t: Date.now(), residentId, kind, status: 'incoming', steps: [{ t: Date.now(), text: kind === 'sos' ? 'Wrist button pressed' : 'Daily OK button not pressed by 10:00' }] })
+      log(s, `🔴 Hausnotruf alarm from ${r.name} (${kind === 'sos' ? 'button pressed' : 'no daily OK press'}). Partner call centre is handling it.`, 'sos')
+      return s
+    })
+    return id
+  },
+
+  /**
+   * Hausnotruf call-centre operator (a HUMAN) acts on an alarm.
+   * status: 'talking' | 'called-112' | 'keyholder-sent' | 'family-informed' | 'resolved'
+   * The 112 call is always started by the operator — never automatically (§4 NotrufV). In the demo it is simulated.
+   */
+  hausnotrufUpdate(alarmId, status, stepText) {
+    setState((s) => {
+      const a = s.alarms.find((x) => x.id === alarmId)
+      if (!a) return s
+      a.status = status
+      a.steps.push({ t: Date.now(), text: stepText })
+      log(s, `📟 Hausnotruf (${res(s, a.residentId).name.split(' ')[0]}): ${stepText}`, status === 'called-112' ? 'sos' : 'info')
       return s
     })
   },
