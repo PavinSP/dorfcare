@@ -10,7 +10,7 @@ const hasWord = (t, words) => t.split(/[^\p{L}]+/u).some((w) => words.includes(w
 const R = {
   de: {
     hello: (n) => `Hallo ${n}! Schön, dass Sie da sind. Wie war Ihr Morgen bisher?`,
-    sos: 'Das klingt ernst. Bitte drücken Sie jetzt den roten SOS-Knopf — dann kommt sofort professionelle Hilfe. Ich bleibe bei Ihnen.',
+    sos: 'Wenn das ein Notfall ist, drücken Sie bitte jetzt den roten SOS-Knopf — dann kommt professionelle Hilfe. Ich bleibe bei Ihnen.',
     meds: 'Bei Medikamenten kann ich leider nichts ändern oder empfehlen — bitte bleiben Sie beim Plan Ihres Arztes. Soll ich die Pflegekraft um einen Rückruf bitten?',
     lonely: 'Schön, dass Sie mit mir reden. Möchten Sie, dass ich eine Helferin aus dem Dorf frage, ob sie auf einen Kaffee vorbeikommt?',
     offerYes: 'Wunderbar! Ich habe eine Helferin gefragt. Sie sehen gleich auf dem Startbildschirm, wer kommt.',
@@ -29,7 +29,7 @@ const R = {
   },
   en: {
     hello: (n) => `Hello ${n}! Lovely to hear from you. How has your morning been so far?`,
-    sos: "That sounds serious. Please press the red SOS button now — professional help will come straight away. I'll stay with you.",
+    sos: "If this is an emergency, please press the red SOS button now — professional help will come. I'll stay with you.",
     meds: "I'm not able to change or recommend medicines — please keep to the plan from your doctor. Shall I ask the nurse to call you back?",
     lonely: "I'm glad you're talking to me. Would you like me to ask a volunteer from the village to pop round for a coffee?",
     offerYes: "Wonderful! I've asked a volunteer. You'll see who's coming on your home screen.",

@@ -83,6 +83,7 @@ export default function Companion({ me, go }) {
         <div className="space-y-2 rounded-2xl bg-red-50 p-3 text-red-900">
           <p className="font-bold">{t('cSosBanner')}</p>
           <button onClick={() => { stopSpeaking(); go('sos') }} className="w-full rounded-2xl bg-red-600 py-4 text-xl font-semibold text-white">{t('btnSos')}</button>
+          <button onClick={() => setAlert(null)} className="w-full rounded-xl bg-white py-2 text-base text-slate-700 ring-1 ring-slate-300">{t('cNotNow')}</button>
         </div>
       )}
       {alert === 'volunteer' && <div className="rounded-2xl bg-teal-50 p-3 text-teal-900">{t('cVolunteer')}</div>}

@@ -127,8 +127,9 @@ function Help({ me, go }) {
   const [listening, setListening] = useState(false)
   const [consent, setConsent] = useState(true)
   const [recurring, setRecurring] = useState(false)
+  const [notEmergency, setNotEmergency] = useState(false) // the person's own answer, never inferred
   const stopRef = useRef(null)
-  const type = text.trim() ? classifyRequest(text) : null
+  const type = text.trim() ? classifyRequest(text, { askedAlready: notEmergency }) : null
 
   const toggleMic = () => {
     if (listening) { stopRef.current?.(); return }
@@ -175,6 +176,9 @@ function Help({ me, go }) {
           <p className="font-bold">{t('emergencyTitle')}</p>
           <p className="text-sm">{t('emergencyBody')}</p>
           <BigButton className="bg-red-600 text-white" onClick={() => go('sos')}>{t('btnSos')}</BigButton>
+          <button onClick={() => setNotEmergency(true)} className="w-full rounded-xl bg-white py-3 text-base font-medium text-slate-700 ring-1 ring-slate-300">
+            {t('notEmergency')}
+          </button>
         </div>
       ) : (
         type && (

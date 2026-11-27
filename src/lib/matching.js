@@ -99,9 +99,15 @@ const RULES = [
   ['companionship', ['allein', 'lonely', 'alone', 'gesellschaft', 'reden', 'talk', 'spazier', 'walk', 'kaffee', 'company']],
 ]
 
-export function classifyRequest(text) {
+/**
+ * Sorts a free-text request into a help category.
+ * 'emergency' only means "mentions a red-flag word" → the app ASKS the person whether they want 112.
+ * It never decides that someone is (or isn't) having an emergency — that would make this a medical device (MDR).
+ * Pass { askedAlready: true } once the person said "not an emergency" to get the everyday category.
+ */
+export function classifyRequest(text, { askedAlready = false } = {}) {
   const t = text.toLowerCase()
-  if (RED_FLAGS.some((w) => t.includes(w))) return 'emergency'
+  if (!askedAlready && RED_FLAGS.some((w) => t.includes(w))) return 'emergency'
   for (const [type, words] of RULES) if (words.some((w) => t.includes(w))) return type
   return 'other'
 }
