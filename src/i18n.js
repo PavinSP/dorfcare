@@ -101,6 +101,12 @@ const STRINGS = {
     tagPunctual: 'Pünktlich', tagKind: 'Freundlich', tagHelpful: 'Sehr hilfreich',
     rateSend: 'Bewertung senden',
     weeklyVisit: '📅 Jede Woche kommt jemand zu Besuch.',
+    myHelpers: '💛 Ihre Helfer',
+    visitsN: '{n}× bei Ihnen · seit {since}',
+    knownHelper: '💛 {name} war schon {n}× bei Ihnen.',
+    preferAgain: '❤️ Gern wieder mit {name}',
+    favOn: 'Lieblingshelfer',
+    favOff: 'Als Lieblingshelfer merken',
   },
   en: {
     greeting: 'Good morning, {name}! 👋',
@@ -177,6 +183,12 @@ const STRINGS = {
     tagPunctual: 'On time', tagKind: 'Kind', tagHelpful: 'Very helpful',
     rateSend: 'Send rating',
     weeklyVisit: '📅 Someone visits you every week.',
+    myHelpers: '💛 Your helpers',
+    visitsN: '{n} visits · since {since}',
+    knownHelper: '💛 {name} has helped you {n} times before.',
+    preferAgain: "❤️ I'd like {name} again",
+    favOn: 'Preferred helper',
+    favOff: 'Mark as preferred helper',
   },
 }
 

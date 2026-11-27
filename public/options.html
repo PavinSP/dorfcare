@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DorfConnect Next Moves</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single reading column (~760px) with wide tables in scroll containers; teal brand from the app, slate neutrals biased toward teal. */
+:root {
+  --bg: #f6f8f8; --surface: #ffffff; --fg: #142322; --muted: #5a6b6a; --line: #dbe3e2;
+  --accent: #0f766e; --accent-soft: #e3f2f0; --warn: #b45309; --warn-soft: #fdf1e2; --good: #15803d; --good-soft: #e5f4ea;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --good: #6fd08f; --good-soft: #163322; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --good: #6fd08f; --good-soft: #163322; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.wrap { max-width: 800px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 44px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font: 500 0.75rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; }
+section { display: grid; gap: 16px; }
+.stack { display: grid; gap: 10px; }
+
+.status { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.status div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.status b { display: block; font-family: var(--display); }
+.status span { color: var(--muted); font-size: 0.88rem; }
+
+.options { display: grid; gap: 12px; }
+.opt { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; min-width: 0; }
+.opt.rec { border: 2px solid var(--accent); }
+.opt header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.pill { font: 500 0.72rem/1 var(--mono); padding: 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.86rem; color: var(--muted); }
+.meta b { color: var(--fg); font-weight: 600; }
+ul { margin: 0; padding-left: 1.2em; }
+li { margin: 2px 0; }
+
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 680px; font-size: 0.88rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font: 500 0.72rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.group { font: 600 0.82rem/1.2 var(--display); color: var(--accent); background: var(--accent-soft); }
+td .src { font-size: 0.78rem; }
+.unv { color: var(--warn); font-size: 0.78rem; }
+
+.picks { display: grid; gap: 8px; }
+.pick { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+.pick input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); }
+.pick:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.pick small { display: block; color: var(--muted); }
+.copyrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: 600 0.9rem var(--body); background: var(--accent); color: var(--surface); border: 0; border-radius: 8px; padding: 9px 14px; cursor: pointer; }
+#picked { font: 0.82rem/1.5 var(--mono); color: var(--muted); white-space: pre-wrap; min-width: 0; overflow-wrap: anywhere; }
+.pitfalls li { margin: 6px 0; }
+footer { color: var(--muted); font-size: 0.8rem; }
+</style>
+<style>body{margin:0} .back{display:inline-block;margin-bottom:4px;font-size:.9rem}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="stack">
+    <a class="back" href="/">← Back to the DorfConnect demo</a>
+    <span class="eyebrow">Startathon · team decision</span>
+    <h1>DorfConnect: what to build next</h1>
+    <p class="lede">Two decisions for the team: how to make the demo run itself with AI personas, and which proven rural-care ideas to put at the centre of the pitch. Pick below and send the list back to Claude.</p>
+  </header>
+
+  <section>
+    <h2>Already in the prototype</h2>
+    <div class="status">
+      <div><b>Live community map</b><span>Matching, privacy circles, routes</span></div>
+      <div><b>Nurse Clara</b><span>ElevenLabs voice agent + offline fallback</span></div>
+      <div><b>Two-way ratings</b><span>Residents rate helpers; helpers leave private visit notes</span></div>
+      <div><b>Everyday help</b><span>Household, letters, meals, weekly repeat, non-elderly residents</span></div>
+      <div><b>Doctor rotation</b><span>Booking + nurse call-back queue</span></div>
+      <div><b>SOS + DE/EN</b><span>Simulated 112 read-out in both languages</span></div>
+      <div><b>Lasting relationships</b><span>Regular helpers matched first; residents can heart a preferred helper</span></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Decision 1</span>
+    <h2>Bringing Maria, the volunteers and the doctor to life as agents</h2>
+    <p>The goal: press "Play" and the personas act on their own. Maria asks for help, Thomas declines because he is at work, Anna accepts and drives over, Gertrud chats with Clara, and the coordinator reacts. The presenter just narrates.</p>
+    <div class="options">
+      <article class="opt rec">
+        <header><h3>A · Story mode (scripted autopilot)</h3><span class="pill good">Recommended for stage</span></header>
+        <p>A timed script drives the real app actions across all open windows. Each persona speaks its line in its own browser voice, and the map, ratings and dashboard update live.</p>
+        <div class="meta"><span><b>Time</b> ~45 min, 1 person</span><span><b>Cost</b> free</span><span><b>Needs</b> nothing, works offline</span><span><b>Risk</b> very low, same every run</span></div>
+      </article>
+      <article class="opt">
+        <header><h3>B · AI persona agents (Claude)</h3><span class="pill">Stretch goal</span></header>
+        <p>Each persona gets a profile (age, job, schedule, mood). On every event the app asks Claude what that persona would do and say, as a structured answer such as "accept" or "decline: at work until 17:00". The app then runs that action. Runs differ each time, which feels alive.</p>
+        <ul>
+          <li>The API key must stay on a small local server (a Vite middleware route), never in the browser.</li>
+          <li>Single Claude API calls with structured output; our own simulation loop decides when each persona acts.</li>
+          <li>Falls back to Story mode if the network or key fails.</li>
+        </ul>
+        <div class="meta"><span><b>Time</b> ~1.5 h, 1–2 people</span><span><b>Cost</b> cents per run</span><span><b>Needs</b> Anthropic API key</span><span><b>Risk</b> 2–5 s per decision, Wi-Fi</span></div>
+      </article>
+      <article class="opt">
+        <header><h3>C · A separate voice agent per persona (ElevenLabs)</h3><span class="pill warn">Not advised today</span></header>
+        <p>One ElevenLabs agent per persona talking to each other. A live agent session expects a microphone, so agents can't easily talk to each other on stage. ElevenLabs' built-in "simulated user" is text-only, and its endpoint is marked deprecated with a removal date of 31 Oct 2026, which has passed. A cheaper version: use ElevenLabs text-to-speech only to give A or B distinct, realistic voices.</p>
+        <div class="meta"><span><b>Time</b> 2 h+</span><span><b>Needs</b> ElevenLabs API key on a server</span><span><b>Risk</b> high</span></div>
+      </article>
+    </div>
+    <p><b>Suggested plan:</b> build A now so the demo can't fail, then add B for volunteer decisions only if time remains.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Decision 2</span>
+    <h2>What works in rural areas</h2>
+    <p>16 real programmes, grouped. Items marked <span class="unv">unverified</span> came from search snippets or secondary sources only.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Programme</th><th>Where / what</th><th>Evidence</th><th>Idea for DorfConnect</th></tr></thead>
+        <tbody>
+          <tr><td class="group" colspan="4">Health access</td></tr>
+          <tr><td><b>Gemeindeschwester plus</b></td><td>Rheinland-Pfalz. Free preventive home visits by nurses for people 80+ without a care level; fights loneliness.</td><td>2021–22 evaluation: residents felt safer, more noticed, less alone. <a class="src" href="https://mastd.rlp.de/fileadmin/06/04_Soziales/Soziales_Dokumente/Evaluationsbericht-GSplus-final.PDF">source</a></td><td>"Dorfschwester" coordinator view: flagged check-ins become planned visits.</td></tr>
+          <tr><td><b>AGnES / VERAH</b></td><td>Germany. Practice assistants make home visits on the GP's behalf.</td><td>High GP and patient acceptance. In the Baden-Württemberg GP-contract programme (which VERAH is part of), admissions were only slightly lower: 15 vs 16.1 per 100 patients. <a class="src" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2695315">source</a></td><td>Nurse at the door, doctor on video.</td></tr>
+          <tr><td><b>Telenotarzt Bayern</b></td><td>Remote emergency doctor joins paramedics. Rolling out across Bavaria. <span class="unv">Würzburg site unverified</span></td><td>Pilot: doctor input arrived sooner, more missions within target time. <a class="src" href="https://innovationsfonds.g-ba.de/downloads/projekt-dokumente/36/2020-12-18_Telenotarzt-Bayern_Ergebnisbericht.pdf">source</a></td><td>SOS explains "112 → paramedics + Telenotarzt", never replaces 112.</td></tr>
+          <tr><td><b>Medibus</b></td><td>North Hesse mobile practice, 2018–2024.</td><td>~21,000 patients; ended once doctors settled in the area. <a class="src" href="https://www.aerzteblatt.de/nachrichten/154225/Medibus-wird-Ende-des-Jahres-in-Hessen-eingestellt">source</a></td><td>Pitch the doctor rotation as a bridge, not a permanent fix.</td></tr>
+          <tr><td><b>Buurtzorg</b></td><td>Netherlands. Small self-managing neighbourhood nurse teams.</td><td>108 vs 168 care hours per client per year (KPMG 2015). <a class="src" href="https://zoek.officielebekendmakingen.nl/blg-453119.pdf">source</a></td><td>Team view: one nurse, a few volunteers, one GP per village cluster.</td></tr>
+          <tr><td><b>Compassionate Frome</b></td><td>UK. GP care planning plus community connectors.</td><td>Emergency admissions −14% vs +28.5% in the rest of Somerset (2013–17). <a class="src" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6193793/">source</a></td><td>Directory of local groups linked to check-ins.</td></tr>
+          <tr><td><b>Landarztquote / -prämie</b></td><td>Bavaria. Study places for future rural GPs; practice funding.</td><td>~1,300 practices funded since 2012. <a class="src" href="https://www.lgl.bayern.de/gesundheit/gesundheitsversorgung/bayerische_gesundheitsagentur/niederlassungsfoerderung/index.htm">source</a></td><td>Pitch line: we help one scarce GP cover several villages.</td></tr>
+          <tr><td class="group" colspan="4">Everyday help &amp; volunteering</td></tr>
+          <tr><td><b>Paid neighbourly help (§45b SGB XI)</b></td><td>Bavaria. Registered neighbours can be paid from the €131/month relief budget (2025, care level 1+).</td><td>Free 8-unit course, max 3 people per helper, allowance below minimum wage. <a class="src" href="https://stmgp.bayern.de/wp-content/uploads/2024/03/202401_flyer_ehrenamtlicheeinzelperson.pdf">source</a></td><td>"Registered §45b" helper badge, hour log, cap check, billing export. Real money.</td></tr>
+          <tr><td><b>Seniorengenossenschaft Riedlingen</b></td><td>Baden-Württemberg, since 1991. Members help each other for time credit or cash.</td><td>~800–900 members; most helpers choose cash. <a class="src" href="https://www.b-b-e.de/fileadmin/Redaktion/05_Newsletter/01_BBE_Newsletter/bis_2017/2013/NL13_Gastbeitrag_Martin.pdf">source</a></td><td>Helpers choose: bank hours or take a coupon.</td></tr>
+          <tr><td><b>Village-to-Village</b></td><td>US. Membership villages with volunteers and a paid coordinator.</td><td>More confidence about ageing in place (self-reported). <a class="src" href="https://socialwelfare.berkeley.edu/sites/default/files/casas_pubs_dovillagespromoteaginginplace.pdf">source</a></td><td>A real human coordinator role in the app.</td></tr>
+          <tr><td><b>Bavarian volunteer insurance</b></td><td>Free liability and accident cover, after private insurance.</td><td>Applies only after private liability cover. <a class="src" href="https://www.ehrenamt.bayern.de/imperia/md/images/stmas/lbe_2023/flyer_ehrenamtsversicherung.pdf">source</a></td><td>Onboarding step: insurance info and link to the Gemeinde.</td></tr>
+          <tr><td class="group" colspan="4">Motivation &amp; rewards</td></tr>
+          <tr><td><b>Fureai Kippu</b></td><td>Japan. Care-hour credits you can save or gift to family elsewhere.</td><td>~400 branches; little rigorous outcome data. <a class="src" href="https://mopact.sites.sheffield.ac.uk/research-fields/social-support-and-long-term-care/innovations/fureai-kippu-ticket-for-a-caring-relationship">source</a></td><td>Points as hours, giftable to your own parents in another village.</td></tr>
+          <tr><td><b>Crowding-out (Frey &amp; Goette)</b></td><td>Switzerland study.</td><td>Paid volunteers cut their hours. <a class="src" href="https://ideas.repec.org/p/zur/iewwpx/007.html">source</a></td><td>Keep rewards as thanks and local coupons, not wages.</td></tr>
+          <tr><td class="group" colspan="4">Tech for older people</td></tr>
+          <tr><td><b>Mobile Retter</b></td><td>Trained nearby volunteers alerted to cardiac arrests; parts of Bavaria.</td><td>Gütersloh: helpers arrived in ~4 min (median) vs ~7 for the ambulance. <a class="src" href="https://brandwacht.bayern.de/mam/archiv/beitraege_pdf/bw5_214-215_mobileretterapp.pdf">source</a></td><td>SOS shows "trained neighbours nearby" next to 112.</td></tr>
+          <tr><td><b>Empathetic phone calls</b></td><td>Meals on Wheels RCT, JAMA Psychiatry 2021, n=240.</td><td>Loneliness, depression and anxiety fell. <a class="src" href="https://jamanetwork.com/journals/jamapsychiatry/article-abstract/2776786">source</a></td><td>Clara plus a scheduled human "call buddy".</td></tr>
+          <tr><td class="group" colspan="4">Transport</td></tr>
+          <tr><td><b>Rufbus / Callheinz</b></td><td>Lower Franconia on-demand buses (incl. Landkreis Würzburg).</td><td>Bavaria-wide on-demand trips grew ~3.5× since 2020. <a class="src" href="https://stmb.bayern.de/med/pressemitteilungen/pressearchiv/2025/92/index.php">source</a></td><td>"Ride to the doctor": book Rufbus, or a volunteer if none runs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Pick</span>
+    <h2>Choose what to build or pitch</h2>
+    <p>Ranked by impact for a village near Würzburg and how easy it is to show in a demo. Tick what you want, then copy the list and paste it to Claude.</p>
+    <div class="picks" id="picks">
+      <label class="pick"><input type="checkbox" id="p-story" value="Story mode autopilot (agents option A)"><span><b>Story mode autopilot</b><small>Personas act and speak on their own during the pitch.</small></span><span class="pill good">~45 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-claude" value="AI persona agents with Claude (agents option B)"><span><b>AI persona agents (Claude)</b><small>Volunteers decide for themselves; needs an API key.</small></span><span class="pill">~1.5 h</span></label>
+      <label class="pick"><input type="checkbox" id="p-schwester" value="Dorfschwester coordinator: check-ins become preventive nurse visits"><span><b>Dorfschwester coordinator</b><small>Missed or "not good" check-ins turn into a nurse visit task (Gemeindeschwester plus).</small></span><span class="pill">~30 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-45b" value="§45b paid neighbourly help: registered badge, hour log, billing export"><span><b>§45b paid neighbourly help</b><small>Registered helpers, hour log, 3-person cap, Pflegekasse export. Strongest business angle.</small></span><span class="pill">~45 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-tele" value="Nurse on site + doctor on video consult screen"><span><b>Nurse on site, doctor on video</b><small>Turn the call-back queue into a simulated tele-consult (AGnES/VERAH).</small></span><span class="pill">~30 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-buddy" value="Human call buddy scheduled next to Clara"><span><b>Human call buddy</b><small>Weekly phone call from a volunteer, next to Clara (RCT-backed).</small></span><span class="pill">~20 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-ride" value="Ride booking: Rufbus/Callheinz or volunteer driver"><span><b>Ride to the doctor</b><small>Offer Rufbus first, volunteer driver as fallback.</small></span><span class="pill">~20 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-hours" value="Hour-based points, giftable to family (Fureai Kippu)"><span><b>Giftable care hours</b><small>Points become hours you can save or gift to your parents elsewhere.</small></span><span class="pill">~20 min</span></label>
+      <label class="pick"><input type="checkbox" id="p-retter" value="SOS shows trained neighbours nearby (Mobile Retter style)"><span><b>Trained neighbours on SOS</b><small>Simulated first-responder alert alongside 112.</small></span><span class="pill">~15 min</span></label>
+    </div>
+    <div class="copyrow">
+      <button type="button" id="copy">Copy my picks</button>
+      <span id="picked">Nothing picked yet.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pitfalls to design around</h2>
+    <ul class="pitfalls">
+      <li><b>Too few volunteers.</b> A UK phone-friendship trial closed early because it couldn't recruit and keep volunteers. Keep tasks small, cap requests per helper, keep a paid coordinator. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4022155">source</a></li>
+      <li><b>Money can push out goodwill.</b> Keep rewards modest and framed as thanks; use §45b for real payment.</li>
+      <li><b>Digital exclusion.</b> 42% of people 78+ use a smartphone and 58% lack basic digital skills. Voice or landline check-ins, and family or the nurse as proxy users. <a href="https://digitalpakt-alter.de/fileadmin/user_upload/DigitalPakt_Alter_Pressemappe_06.05.2024.pdf">source</a></li>
+      <li><b>Pilots die when funding ends</b> (Medibus ended; AGnES fees were cut). Tie the business model to existing funding: §45b, Gemeinde programmes, GP contracts.</li>
+      <li><b>Regulation and liability.</b> Build §45b rules and insurance checks into onboarding; it becomes a selling point to the Landkreis.</li>
+      <li><b>Thin evidence.</b> Claim "safer, less lonely, faster help", not "saves hospital costs". Frome is the one strong admissions result.</li>
+      <li><b>Ratings of vulnerable people.</b> Our resident ratings stay coordinator-only and never limit access to emergency or medical help; a low score triggers a friendly call.</li>
+    </ul>
+  </section>
+
+  <footer>Research compiled 27 Nov 2026 from public sources linked above. Several suggested programmes (Silver Line, GoodSAM, nebenan.de, Hausnotruf, Gesundheitskiosk, Dorfkümmerer) were not researched for time.</footer>
+</div>
+
+<script>
+(function () {
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#picks input'));
+  var out = document.getElementById('picked');
+  function read() { try { return JSON.parse(localStorage.getItem('dc-picks') || '[]'); } catch (e) { return []; } }
+  function save(ids) { try { localStorage.setItem('dc-picks', JSON.stringify(ids)); } catch (e) {} }
+  function text() {
+    var chosen = boxes.filter(function (b) { return b.checked; }).map(function (b) { return '- ' + b.value; });
+    return chosen.length ? 'DorfConnect picks:\n' + chosen.join('\n') : '';
+  }
+  function render() { var t = text(); out.textContent = t || 'Nothing picked yet.'; }
+  var saved = read();
+  boxes.forEach(function (b) { b.checked = saved.indexOf(b.id) !== -1; b.addEventListener('change', function () { save(boxes.filter(function (x) { return x.checked; }).map(function (x) { return x.id; })); render(); }); });
+  render();
+  document.getElementById('copy').addEventListener('click', function () {
+    var t = text();
+    if (!t) { out.textContent = 'Tick at least one option first.'; return; }
+    function fallback() { var r = document.createRange(); r.selectNodeContents(out); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () { out.textContent = t + '\n\nCopied.'; }, fallback);
+    } else { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>

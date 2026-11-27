@@ -75,6 +75,7 @@ function Home({ me, state, go }) {
         </div>
       )}
       {me.weeklyVisit && <div className="rounded-2xl bg-teal-50 p-4 text-teal-900">{t('weeklyVisit')}</div>}
+      <MyHelpers me={me} state={state} />
       {myMedical && (
         <div className="rounded-2xl bg-violet-50 p-4 text-violet-900">
           {myMedical.status === 'answered' ? t('medAnswered') : t('medWaiting')}
@@ -109,6 +110,9 @@ function RequestStatus({ q, me, state }) {
   return (
     <div className="space-y-2 rounded-2xl bg-teal-50 p-4 text-teal-900">
       <p className="text-lg font-semibold">{t('coming', { name: helper.name.split(' ')[0] })}</p>
+      {me.bonds[helper.id]?.visits > 0 && (
+        <p className="text-sm font-medium">{t('knownHelper', { name: helper.name.split(' ')[0], n: me.bonds[helper.id].visits })}</p>
+      )}
       <p className="text-sm">
         {t('comingMeta', { type: TYPE_LABEL_I18N[lang][q.type], dist: formatDistance(haversineKm(helper, me)), rel: helper.reliability })}
       </p>
@@ -262,10 +266,46 @@ function Sos({ me, go }) {
   )
 }
 
+function MyHelpers({ me, state }) {
+  const { t } = useLang()
+  const helpers = Object.entries(me.bonds ?? {})
+    .filter(([, b]) => b.visits > 0)
+    .sort((a, b) => b[1].visits - a[1].visits)
+  if (!helpers.length) return null
+  return (
+    <div className="rounded-2xl border-2 border-amber-100 p-4">
+      <p className="mb-2 font-semibold">{t('myHelpers')}</p>
+      {helpers.map(([vid, b]) => {
+        const v = state.volunteers.find((x) => x.id === vid)
+        return (
+          <div key={vid} className="flex items-center justify-between gap-2 py-1">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-lg font-bold text-white">{v.name[0]}</span>
+              <div>
+                <p className="text-lg font-medium leading-tight">{v.name.split(' ')[0]}</p>
+                <p className="text-xs text-slate-500">{t('visitsN', { n: b.visits, since: b.since })}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => actions.setFavourite(me.id, vid, !b.favourite)}
+              aria-label={b.favourite ? t('favOn') : t('favOff')}
+              title={b.favourite ? t('favOn') : t('favOff')}
+              className={`rounded-full px-3 py-1.5 text-2xl ${b.favourite ? 'bg-rose-50' : 'opacity-40 grayscale'}`}
+            >
+              ❤️
+            </button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function RateCard({ q, state }) {
   const { t } = useLang()
   const helper = state.volunteers.find((v) => v.id === q.assignedTo)
   const [stars, setStars] = useState(0)
+  const [again, setAgain] = useState(false)
   const [tags, setTags] = useState([])
   const TAGS = [['punctual', t('tagPunctual')], ['kind', t('tagKind')], ['helpful', t('tagHelpful')]]
   const toggle = (k) => setTags((x) => (x.includes(k) ? x.filter((y) => y !== k) : [...x, k]))
@@ -282,7 +322,11 @@ function RateCard({ q, state }) {
           <button key={k} onClick={() => toggle(k)} className={`rounded-full px-3 py-1 text-sm ${tags.includes(k) ? 'bg-amber-500 text-white' : 'bg-white ring-1 ring-amber-200'}`}>{label}</button>
         ))}
       </div>
-      <button disabled={!stars} onClick={() => actions.rateVolunteer(q.id, stars, tags)} className="w-full rounded-xl bg-amber-500 py-3 font-semibold text-white disabled:opacity-40">
+      <label className="flex items-center justify-center gap-2 text-sm">
+        <input type="checkbox" checked={again} onChange={(e) => setAgain(e.target.checked)} className="h-5 w-5" />
+        {t('preferAgain', { name: helper.name.split(' ')[0] })}
+      </label>
+      <button disabled={!stars} onClick={() => { actions.rateVolunteer(q.id, stars, tags); if (again) actions.setFavourite(q.residentId, helper.id, true) }} className="w-full rounded-xl bg-amber-500 py-3 font-semibold text-white disabled:opacity-40">
         {t('rateSend')}
       </button>
     </div>

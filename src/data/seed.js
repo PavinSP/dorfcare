@@ -54,6 +54,7 @@ export const initialState = {
       lastCheckIn: null,
       support: 'Lives alone · daily check-in',
       rating: { sum: 29, count: 6 }, flags: [],
+      bonds: { anna: { visits: 4, starsSum: 20, rated: 4, favourite: true, since: 'September' } },
     },
     {
       id: 'helmut', name: 'Helmut Bauer', age: 79, ...at(400, 300),
@@ -62,6 +63,7 @@ export const initialState = {
       lastCheckIn: 'today-ok',
       support: 'Lives with wife · daily check-in',
       rating: { sum: 14, count: 3 }, flags: [],
+      bonds: { thomas: { visits: 2, starsSum: 9, rated: 2, favourite: false, since: 'October' } },
     },
     {
       id: 'gertrud', name: 'Gertrud Klein', age: 86, ...at(-450, 500),
@@ -71,6 +73,7 @@ export const initialState = {
       support: 'Lives alone · daily check-in',
       rating: { sum: 9, count: 2 },
       flags: [{ t: Date.now() - 3 * 86400000, by: 'Sophie', flag: 'struggling' }],
+      bonds: {}, // nobody regular yet → shows up as an isolation risk for the coordinator
     },
     {
       // Not elderly: everyday support for anyone who is struggling for a while.
@@ -82,6 +85,7 @@ export const initialState = {
       lastCheckIn: 'today-ok',
       support: 'Temporary support · 6 weeks after surgery · 2 kids',
       rating: { sum: 10, count: 2 }, flags: [],
+      bonds: { sophie: { visits: 1, starsSum: 5, rated: 1, favourite: false, since: 'November' } },
     },
   ],
 

@@ -4,9 +4,9 @@
 
 import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
-import { approximate, rankVolunteers } from './lib/matching'
+import { approximate, pickNotified, rankVolunteers } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v3'
+const KEY = 'dorfconnect-state-v4'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -73,7 +73,7 @@ export const actions = {
         return s
       }
       const ranked = rankVolunteers(s.volunteers, r, type)
-      const notified = ranked.slice(0, 3).map((v) => v.id)
+      const notified = pickNotified(ranked)
       s.requests.unshift({
         id, residentId, text, type,
         approx: approximate(r, r.id),
@@ -101,7 +101,7 @@ export const actions = {
       q.declined.push(volunteerId)
       log(s, `${vol(s, volunteerId).name.split(' ')[0]} can't help right now (no penalty).`)
       if (q.notified.length === 0) {
-        const next = rankVolunteers(s.volunteers, r, q.type, q.declined).slice(0, 3).map((v) => v.id)
+        const next = pickNotified(rankVolunteers(s.volunteers, r, q.type, q.declined))
         q.notified = next
         if (!next.length) { q.status = 'escalated'; log(s, `⚠️ Nobody free for ${r.name} → coordinator alerted.`, 'help') }
         else log(s, `Re-routed ${r.name}'s request to the next best volunteers.`)
@@ -144,6 +144,10 @@ export const actions = {
       v.reliability = Math.min(100, v.reliability + 1)
       v.status = 'available'
       if (feedback.stars) { r.rating.sum += feedback.stars; r.rating.count += 1 }
+      const bond = (r.bonds[v.id] ??= { visits: 0, starsSum: 0, rated: 0, favourite: false, since: 'today' })
+      bond.visits += 1
+      bond.lastVisit = Date.now()
+      if (bond.visits === 3) log(s, `🤝 ${v.name.split(' ')[0]} and ${r.name.split(' ')[0]} have met 3 times — a regular connection is forming.`, 'bond')
       for (const flag of feedback.flags ?? []) r.flags.unshift({ t: Date.now(), by: v.name.split(' ')[0], flag })
       log(s, `🎉 ${v.name} completed the task: +${pts} points. Address access removed.`, 'ok')
       if (feedback.flags?.length) log(s, `💛 ${v.name.split(' ')[0]} noted ${r.name} may need more everyday support.`, 'support')
@@ -157,11 +161,25 @@ export const actions = {
       const q = s.requests.find((x) => x.id === reqId)
       const v = vol(s, q.assignedTo)
       q.residentRating = { stars, tags }
+      const r = res(s, q.residentId)
+      const bond = r.bonds[v.id]
+      if (bond) { bond.starsSum += stars; bond.rated += 1 }
       v.rating.sum += stars
       v.rating.count += 1
       // Reliability reflects verified completion + reviewed feedback (small nudge, never a big swing).
       v.reliability = Math.max(0, Math.min(100, Math.round(v.reliability + (stars - 4) * 0.5)))
-      log(s, `⭐ ${res(s, q.residentId).name.split(' ')[0]} rated ${v.name.split(' ')[0]} ${stars}/5${tags.length ? ` (${tags.join(', ')})` : ''}.`)
+      log(s, `⭐ ${r.name.split(' ')[0]} rated ${v.name.split(' ')[0]} ${stars}/5${tags.length ? ` (${tags.join(', ')})` : ''}.`)
+      return s
+    })
+  },
+
+  /** Resident marks / unmarks a volunteer as their preferred helper ("gern wieder"). */
+  setFavourite(residentId, volunteerId, favourite) {
+    setState((s) => {
+      const r = res(s, residentId)
+      const bond = (r.bonds[volunteerId] ??= { visits: 0, starsSum: 0, rated: 0, favourite: false, since: 'today' })
+      bond.favourite = favourite
+      if (favourite) log(s, `💛 ${r.name.split(' ')[0]} would like ${vol(s, volunteerId).name.split(' ')[0]} again next time.`, 'bond')
       return s
     })
   },

@@ -72,6 +72,11 @@ export default function Volunteer() {
                       {r.rating.count >= 3 ? `Requester ★ ${avg(r.rating)} · ${r.rating.count} visits` : 'New to DorfConnect'}
                     </span>
                     {q.recurring && <span className="rounded bg-teal-100 px-1.5 py-0.5 text-teal-800">🔁 weekly</span>}
+                    {r.bonds?.[meId]?.visits > 0 && (
+                      <span className="rounded bg-rose-100 px-1.5 py-0.5 text-rose-800">
+                        💛 Your regular: {r.name.split(' ')[0]} · {r.bonds[meId].visits} {r.bonds[meId].visits === 1 ? 'visit' : 'visits'}{r.bonds[meId].favourite ? ' · asked for you' : ''}
+                      </span>
+                    )}
                     {r.age < 65 && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">temporary support</span>}
                   </p>
                   <div className="mt-3 flex gap-2">
@@ -83,6 +88,8 @@ export default function Volunteer() {
             })}
           </div>
         </Card>
+
+        <Neighbours state={state} meId={meId} />
 
         <Rewards state={state} me={me} />
 
@@ -160,6 +167,28 @@ function VisitFeedback({ name, onSubmit }) {
 }
 
 const avg = (r) => (r.count ? (r.sum / r.count).toFixed(1) : '–')
+
+/** People this volunteer keeps coming back to. Only residents they have already visited. */
+function Neighbours({ state, meId }) {
+  const mine = state.residents
+    .map((r) => ({ r, b: r.bonds?.[meId] }))
+    .filter(({ b }) => b?.visits > 0)
+    .sort((a, b) => b.b.visits - a.b.visits)
+  return (
+    <Card>
+      <h3 className="font-semibold">🤝 Your neighbours</h3>
+      {mine.length === 0 && <p className="mt-1 text-sm text-slate-500">After a few visits, the people you help regularly appear here — and you'll be asked first next time.</p>}
+      {mine.map(({ r, b }) => (
+        <div key={r.id} className="mt-2 flex items-center justify-between text-sm">
+          <span>{r.name.split(' ')[0]}, {r.age}</span>
+          <span className="text-slate-500">
+            {b.visits} {b.visits === 1 ? 'visit' : 'visits'}{b.rated ? ` · ★ ${(b.starsSum / b.rated).toFixed(1)}` : ''}{b.favourite ? ' · ❤️ prefers you' : ''}
+          </span>
+        </div>
+      ))}
+    </Card>
+  )
+}
 
 function Rewards({ state, me }) {
   return (

@@ -1,6 +1,7 @@
 import CommunityMap, { MapLegend } from '../components/CommunityMap'
 import { Card } from '../components/ui'
 import { VILLAGE_NAME } from '../data/seed'
+import { bondStrength } from '../lib/matching'
 import { actions, useStore } from '../store'
 
 const FLAG_LABEL = { lonely: '😔 lonely', struggling: '🧺 struggling with daily tasks', unwell: '🤒 seemed unwell', 'home-safety': '⚠️ home safety' }
@@ -14,6 +15,11 @@ export default function Community() {
   const checkedIn = state.residents.filter((r) => r.lastCheckIn).length
   const leaderboard = [...state.volunteers].filter((v) => v.verified).sort((a, b) => b.points - a.points)
   const needsSupport = state.residents.filter((r) => r.flags.some((f) => !f.handled))
+  const vname = (id) => state.volunteers.find((v) => v.id === id)?.name.split(' ')[0]
+  const pairs = state.residents
+    .flatMap((r) => Object.entries(r.bonds ?? {}).filter(([, b]) => b.visits > 0).map(([vid, b]) => ({ r, vid, b, strength: bondStrength(b) })))
+    .sort((a, b) => b.strength - a.strength)
+  const alone = state.residents.filter((r) => !Object.values(r.bonds ?? {}).some((b) => b.visits > 0))
 
   return (
     <div className="space-y-5">
@@ -54,6 +60,27 @@ export default function Community() {
                 </button>
               </div>
             ))}
+          </Card>
+
+          <Card>
+            <h3 className="font-semibold">🤝 Connections</h3>
+            <p className="text-xs text-slate-500">Regular pairs are matched first — familiar faces build trust.</p>
+            {pairs.map(({ r, vid, b, strength }) => (
+              <div key={r.id + vid} className="mt-2 text-sm">
+                <div className="flex justify-between">
+                  <span>{r.name.split(' ')[0]} ↔ {vname(vid)} {b.favourite ? '❤️' : ''}</span>
+                  <span className="text-slate-500">{b.visits} {b.visits === 1 ? 'visit' : 'visits'}</span>
+                </div>
+                <div className="mt-1 h-1.5 rounded-full bg-slate-100">
+                  <div className="h-1.5 rounded-full bg-rose-400" style={{ width: `${Math.round(strength * 100)}%` }} />
+                </div>
+              </div>
+            ))}
+            {alone.length > 0 && (
+              <p className="mt-3 rounded-lg bg-amber-50 p-2 text-xs text-amber-900">
+                No regular helper yet: <b>{alone.map((r) => r.name.split(' ')[0]).join(', ')}</b> — consider a weekly visit.
+              </p>
+            )}
           </Card>
 
           <Card>

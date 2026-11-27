@@ -38,6 +38,17 @@ Roles are switched with the tabs at the top, or by URL: `#resident`, `#volunteer
 8. Switch **🇬🇧 EN**: the same flow works in English.
 9. **Resident**: type "Ich bin gestürzt, Schmerzen in der Brust". The app detects an emergency and points to SOS. **SOS** shows the emergency card and reads Maria's details aloud in German (simulated 112).
 
+## Relationships between helpers and residents
+
+People prefer familiar faces, so matching learns who belongs together:
+
+- Every completed visit strengthens the bond between a resident and a volunteer. The resident's star ratings of those visits scale it, and a ❤️ "preferred helper" adds a boost (`bondStrength()` in `src/lib/matching.js`).
+- The matching score is now 35% proximity + 30% reliability + 15% experience + **20% relationship**. A preferred helper who is available and has the right skill is **always** among the volunteers notified.
+- Safeguarding: if a resident rated a volunteer ≤ 2★ on average over 2+ visits, that pair is not matched again.
+- Resident: *Ihre Helfer / Your helpers* with a heart toggle, and "Anna has helped you 4 times before" when she's coming. Volunteer: *Your regular* badge and *Your neighbours*. Coordinator: *Connections* strength bars and "no regular helper yet" (an isolation signal).
+
+The team decision page (agent options + rural research) is served locally at `/options.html`.
+
 ## How the map works
 
 | Piece | Where | What it does |
@@ -46,7 +57,7 @@ Roles are switched with the tabs at the top, or by URL: `#resident`, `#volunteer
 | Custom `divIcon` markers | same file | Coloured round pins (green = available, grey = busy, red = request, blue = doctor, purple = nurse) |
 | Privacy rules | same file | Homes are **never** drawn, except to the one volunteer who accepted (and to the resident themself). Requests show a 250 m circle around a point offset by ~100–200 m. |
 | Matching "connections" | same file | Dashed lines from a request to the volunteers who were notified |
-| Haversine distance + ranking | `src/lib/matching.js` | Filters: available, verified, has the needed skill, within 3 km. Score = 40% proximity + 35% reliability + 25% experience. The top 3 are notified. If all decline, the request goes to the next 3, then to the coordinator. |
+| Haversine distance + ranking | `src/lib/matching.js` | Filters: available, verified, has the needed skill, within 3 km. Score = 35% proximity + 30% reliability + 15% experience + 20% relationship. The top 3 are notified. If all decline, the request goes to the next 3, then to the coordinator. |
 | Directions | `src/screens/Volunteer.jsx` | A Google Maps `dir` link opens turn-by-turn navigation on the phone. |
 
 To move the demo to a real village, change `VILLAGE_CENTER` in `src/data/seed.js`. Every person is placed in metres relative to it.
