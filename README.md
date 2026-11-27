@@ -38,6 +38,18 @@ Roles are switched with the tabs at the top, or by URL: `#resident`, `#volunteer
 8. Switch **🇬🇧 EN**: the same flow works in English.
 9. **Resident**: type "Ich bin gestürzt, Schmerzen in der Brust". The app detects an emergency and points to SOS. **SOS** shows the emergency card and reads Maria's details aloud in German (simulated 112).
 
+## Works without a smartphone
+
+Many residents over 80 have only a landline, so the resident never *needs* the app. Each channel has its own tab:
+
+| Channel | Where | What it shows |
+|---|---|---|
+| ☎️ **Landline** | `#landline` (`src/screens/Landline.jsx`) | 09:00 check-in call from Clara: press 1 = fine, 2 = help, 3 = coordinator (or just say it). Inbound hotline call. Real phone calls via ElevenLabs: [docs/elevenlabs-phone-checkin.md](docs/elevenlabs-phone-checkin.md) and `scripts/elevenlabs-call.mjs` (dry run unless `--confirm`). |
+| 🔴 **Alarm button** | `#hausnotruf` (`src/screens/Hausnotruf.jsx`) | Wrist SOS button and daily "I'm OK" button at home. Partner call centre where a **human** operator talks, sends the keyholder volunteer, informs family, or calls 112 (simulated; automatic 112 calls are forbidden by §4 NotrufV). |
+| 👪 **Family** | `#family` (`src/screens/Family.jsx`) | Peter (Maria's son) sees today's check-in, alerts, who helps, appointments, and arranges help with Maria's consent. No medical details. |
+| 🤝 **On behalf** | Community + Volunteer (`src/components/OnBehalfForm.jsx`) | The coordinator logs phone or drop-in requests; a volunteer logs what a neighbour needs. Consent is required, and the request shows "☎️ via landline · logged by Sabine". |
+| 🏠 **In person** | Community + Doctor; [`/hilfe-karte.html`](public/hilfe-karte.html), [`/aushang.html`](public/aushang.html) | Weekly drop-in hour in the Gemeindehaus, a printable fridge card ("one number for everything"), and an A4 notice with tear-off strips for the bakery. |
+
 ## Relationships between helpers and residents
 
 People prefer familiar faces, so matching learns who belongs together:

@@ -76,7 +76,7 @@ export const initialState = {
       id: 'helmut', name: 'Helmut Bauer', age: 79, ...at(400, 300),
       address: 'Kirchweg 3, 97999 Lindenbach', phone: '+49 151 0000 0003',
       emergencyContact: 'Erika Bauer (daughter)', medical: 'Hypertension', medicalDe: 'Bluthochdruck',
-      lastCheckIn: 'today-ok',
+      lastCheckIn: 'today-ok', lastCheckInVia: 'button', lastCheckInAt: Date.now() - 45 * 60000, // pressed his daily OK button
       support: 'Lives with wife · daily check-in',
       rating: { sum: 14, count: 3 }, flags: [],
       bonds: { thomas: { visits: 2, starsSum: 9, rated: 2, favourite: false, since: 'October' } },

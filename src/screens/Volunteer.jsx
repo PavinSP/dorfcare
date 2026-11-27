@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CommunityMap, { MapLegend } from '../components/CommunityMap'
+import OnBehalfForm, { ViaBadge } from '../components/OnBehalfForm'
 import { Card } from '../components/ui'
 import { POINTS_FOR_TYPE, TYPE_LABEL } from '../data/seed'
 import { formatDistance, haversineKm } from '../lib/matching'
@@ -72,6 +73,7 @@ export default function Volunteer() {
                       {r.rating.count >= 3 ? `Requester ★ ${avg(r.rating)} · ${r.rating.count} visits` : 'New to DorfConnect'}
                     </span>
                     {q.recurring && <span className="rounded bg-teal-100 px-1.5 py-0.5 text-teal-800">🔁 weekly</span>}
+                    <ViaBadge q={q} />
                     {r.bonds?.[meId]?.visits > 0 && (
                       <span className="rounded bg-rose-100 px-1.5 py-0.5 text-rose-800">
                         💛 Your regular: {r.name.split(' ')[0]} · {r.bonds[meId].visits} {r.bonds[meId].visits === 1 ? 'visit' : 'visits'}{r.bonds[meId].favourite ? ' · asked for you' : ''}
@@ -88,6 +90,8 @@ export default function Volunteer() {
             })}
           </div>
         </Card>
+
+        <LogForNeighbour key={meId} me={me} />
 
         <Neighbours state={state} meId={meId} />
 
@@ -120,6 +124,7 @@ function ActiveTask({ q, state, me }) {
       <p className="text-xs font-semibold uppercase text-teal-700">Your active task</p>
       <h3 className="text-lg font-bold">{TYPE_LABEL[q.type]} for {r.name}</h3>
       <p className="text-sm text-slate-600">“{q.text}”</p>
+      {q.via && q.via !== 'app' && <p className="mt-1"><ViaBadge q={q} /></p>}
       <div className="mt-3 rounded-xl bg-teal-50 p-3 text-sm">
         <p>🏠 <b>{r.address}</b></p>
         <p>📞 {r.phone}</p>
@@ -130,6 +135,21 @@ function ActiveTask({ q, state, me }) {
         <button onClick={() => setFinishing(true)} className="flex-1 rounded-lg bg-teal-600 py-2 font-semibold text-white">Mark done</button>
       </div>
       {finishing && <VisitFeedback name={r.name.split(' ')[0]} onSubmit={(fb) => actions.completeRequest(q.id, fb)} />}
+    </Card>
+  )
+}
+
+/** Story: Anna notices Maria needs a lift and logs it for her (with Maria's OK). */
+function LogForNeighbour({ me }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Card>
+      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between text-left">
+        <h3 className="font-semibold">📝 Log a request for a neighbour</h3>
+        <span className="text-slate-400">{open ? '▲' : '▼'}</span>
+      </button>
+      {!open && <p className="mt-1 text-xs text-slate-500">Met someone without a smartphone who needs help? Log it for them — with their OK.</p>}
+      {open && <div className="mt-3"><OnBehalfForm by={me.name.split(' ')[0]} via="volunteer" /></div>}
     </Card>
   )
 }

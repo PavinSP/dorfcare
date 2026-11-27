@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, pickNotified, rankVolunteers } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v5'
+const KEY = 'dorfconnect-state-v6'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -58,6 +58,7 @@ export const actions = {
       const r = res(s, residentId)
       r.lastCheckIn = 'today-ok'
       r.lastCheckInVia = via
+      r.lastCheckInAt = Date.now()
       log(s, `✅ ${r.name} checked in (${via}): doing well.`, 'ok')
       return s
     })

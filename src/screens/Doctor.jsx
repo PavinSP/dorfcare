@@ -58,6 +58,16 @@ export default function Doctor() {
             })}
           </Card>
 
+          {state.dropIn && (
+            <Card className="border-2 border-teal-200">
+              <h3 className="font-semibold">🏠 Drop-in hour shares your morning</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                <b>{state.dropIn.day} {state.dropIn.time}</b> · {state.dropIn.place}. The coordinator ({state.coordinator?.name}) runs a help desk in the
+                Gemeindehaus while you see patients — residents can arrange a ride home, shopping or a visit right after their appointment.
+              </p>
+            </Card>
+          )}
+
           <Card>
             <h3 className="font-semibold">🤝 Remote doctor + local nurse</h3>
             <p className="mt-1 text-sm text-slate-600">

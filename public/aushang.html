@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aushang Bäckerei Lindenbach</title>
+<style>
+  /* A4 notice for the bakery / village shop. Two halves + tear-off strips. DEMO — fictional data. */
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #e5e7eb; color: #000; font-family: Arial, Helvetica, system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bar { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; padding: 16px; font-size: 15px; }
+  .bar button { font-size: 18px; font-weight: 700; padding: 10px 22px; border-radius: 10px; border: 0; background: #0f766e; color: #fff; cursor: pointer; }
+  .bar a { color: #0f766e; }
+  .page { width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; padding: 10mm 12mm 0; display: flex; flex-direction: column; overflow: hidden; }
+  @media screen and (max-width: 840px) { .page { zoom: 0.45; } }
+  .demo { text-align: center; font-size: 9pt; font-weight: 700; border: 0.3mm dashed #000; padding: 1mm; margin-bottom: 4mm; }
+  .half { flex: 1; padding: 5mm 7mm; border-radius: 4mm; display: flex; flex-direction: column; gap: 3mm; }
+  .help { background: #0f766e; color: #fff; }
+  .need { border: 1mm solid #000; margin-top: 5mm; }
+  h1 { margin: 0; font-size: 34pt; line-height: 1.05; }
+  .en { display: block; font-size: 11pt; font-weight: 400; opacity: 0.85; }
+  .lead { font-size: 17pt; font-weight: 700; margin: 0; line-height: 1.25; }
+  ul { margin: 0; padding-left: 0; list-style: none; font-size: 16pt; font-weight: 700; display: grid; grid-template-columns: 1fr 1fr; gap: 1mm 6mm; }
+  ul li .en { display: inline; font-size: 10pt; }
+  .num { font-size: 36pt; font-weight: 900; white-space: nowrap; }
+  .numnote { font-size: 10pt; font-weight: 700; }
+  .row { display: flex; justify-content: space-between; align-items: flex-end; gap: 6mm; flex-wrap: wrap; margin-top: auto; }
+  .sos { background: #c00000; color: #fff; font-size: 16pt; font-weight: 900; padding: 2mm 4mm; border-radius: 2mm; }
+  .facts { margin: 0; padding-left: 6mm; font-size: 14pt; line-height: 1.35; }
+  .strips { display: flex; margin-top: 6mm; border-top: 0.5mm dashed #000; height: 46mm; }
+  .strip { flex: 1; border-left: 0.4mm dashed #000; display: flex; align-items: center; justify-content: center; }
+  .strip:first-child { border-left: 0; }
+  .strip span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10pt; font-weight: 700; text-align: center; line-height: 1.2; }
+  .strip small { font-weight: 400; font-size: 7pt; }
+  .scissors { font-size: 10pt; margin: -3.2mm 0 0 2mm; background: #fff; width: max-content; padding: 0 1mm; position: relative; }
+  @media print {
+    body { background: #fff; }
+    .bar { display: none; }
+    .page { margin: 0; zoom: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <button onclick="window.print()">🖨️ Drucken</button>
+    <span>A4 · für Bäckerei / Dorfladen · <a href="/hilfe-karte.html">Hilfe-Karte (A6)</a> · <a href="/#community">← DorfConnect</a></span>
+  </div>
+
+  <main class="page">
+    <div class="demo">DEMO · Alle Angaben fiktiv (Hackathon-Prototyp) · Demo only, fictional data</div>
+
+    <section class="half help">
+      <h1>Hilfe gesucht? Wir helfen! <span class="en">Need help? We help!</span></h1>
+      <p class="lead">Ein Anruf genügt — auch ohne Handy oder Internet. <span class="en">One call is enough — no smartphone or internet needed.</span></p>
+      <ul>
+        <li>🛒 Einkauf <span class="en">shopping</span></li>
+        <li>🚗 Fahrt zum Arzt <span class="en">rides</span></li>
+        <li>🧹 Haushalt <span class="en">household</span></li>
+        <li>✉️ Briefe <span class="en">letters</span></li>
+        <li>☕ Gesellschaft <span class="en">company</span></li>
+        <li>☀️ Morgens Anruf <span class="en">daily call</span></li>
+      </ul>
+      <div class="row">
+        <div>
+          <div class="num">☎ 0931 000 4711</div>
+          <div class="numnote">Demo-Nummer · fiktiv</div>
+        </div>
+        <div style="font-size:14pt;font-weight:700">Sprechstunde:<br>Mittwoch 10–12 Uhr, Gemeindehaus</div>
+      </div>
+      <div><span class="sos">Notfall? Immer 112.</span></div>
+    </section>
+
+    <section class="half need">
+      <h1>Helfer gesucht: 1 Stunde pro Woche <span class="en">Volunteers wanted: 1 hour a week</span></h1>
+      <ul>
+        <li>🚗 Fahrten <span class="en">rides</span></li>
+        <li>🛒 Einkäufe <span class="en">shopping</span></li>
+        <li>☕ Gesellschaft <span class="en">company</span></li>
+        <li>🧹 Kleine Hilfen <span class="en">small jobs</span></li>
+      </ul>
+      <ul class="facts" style="display:block;font-weight:400">
+        <li>✔ Versichert über die Gemeinde <span class="en">Insured through the municipality</span></li>
+        <li>✔ Kleines Dankeschön: Kaffee &amp; Kuchen im Café Linde <span class="en">Small thank-you from local shops</span></li>
+        <li>✔ Sie entscheiden, wann Sie Zeit haben <span class="en">You decide when you are free</span></li>
+      </ul>
+      <p class="lead" style="margin-top:auto">Anmeldung: Mittwoch 10–12 Uhr im Gemeindehaus — oder anrufen. <span class="en">Sign up at the drop-in hour (Wed 10–12, village hall) or call.</span></p>
+    </section>
+
+    <div class="strips" aria-label="Abreißstreifen">
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+      <div class="strip"><span>DorfConnect<br>0931 000 4711<br><small>Demo · fiktiv</small></span></div>
+    </div>
+  </main>
+</body>
+</html>

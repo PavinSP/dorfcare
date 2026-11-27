@@ -1,6 +1,7 @@
 import CommunityMap, { MapLegend } from '../components/CommunityMap'
+import OnBehalfForm, { ViaBadge } from '../components/OnBehalfForm'
 import { Card } from '../components/ui'
-import { VILLAGE_NAME } from '../data/seed'
+import { CHANNELS, TYPE_LABEL, VILLAGE_NAME } from '../data/seed'
 import { bondStrength } from '../lib/matching'
 import { actions, useStore } from '../store'
 
@@ -20,6 +21,9 @@ export default function Community() {
     .flatMap((r) => Object.entries(r.bonds ?? {}).filter(([, b]) => b.visits > 0).map(([vid, b]) => ({ r, vid, b, strength: bondStrength(b) })))
     .sort((a, b) => b.strength - a.strength)
   const alone = state.residents.filter((r) => !Object.values(r.bonds ?? {}).some((b) => b.visits > 0))
+  const rname = (id) => state.residents.find((r) => r.id === id)?.name ?? id
+  const activeReqs = state.requests.filter((q) => q.status !== 'completed')
+  const coordFirst = state.coordinator?.name.split(' ')[0] ?? 'Coordinator'
 
   return (
     <div className="space-y-5">
@@ -42,6 +46,49 @@ export default function Community() {
         </div>
 
         <div className="space-y-5">
+          <Card className="border-2 border-indigo-200">
+            <h3 className="font-semibold">☎️🤝 Log a request on behalf</h3>
+            <p className="mb-3 text-xs text-slate-500">
+              {state.coordinator?.name} · {state.coordinator?.role}. For residents without a smartphone: hotline calls, drop-in visits, family.
+            </p>
+            <OnBehalfForm by={`${coordFirst} (coordinator)`} via="landline" />
+          </Card>
+
+          <Card>
+            <h3 className="font-semibold">📋 Help requests</h3>
+            {activeReqs.length === 0 && <p className="mt-2 text-sm text-slate-400">No open requests.</p>}
+            {activeReqs.map((q) => (
+              <div key={q.id} className="mt-2 rounded-lg bg-slate-50 p-2 text-sm">
+                <div className="flex justify-between gap-2">
+                  <span><b>{rname(q.residentId)}</b> · {TYPE_LABEL[q.type] ?? q.type}</span>
+                  <span className={`shrink-0 text-xs ${q.status === 'escalated' ? 'text-red-600' : q.status === 'accepted' ? 'text-teal-700' : 'text-amber-700'}`}>
+                    {q.status === 'accepted' ? `🤝 ${vname(q.assignedTo)}` : q.status}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">“{q.text}”</p>
+                <p className="mt-1 flex flex-wrap gap-1">
+                  <ViaBadge q={q} />
+                  {(!q.via || q.via === 'app') && <span className="rounded bg-slate-200 px-1.5 py-0.5 text-xs text-slate-600">📱 via app</span>}
+                  {q.recurring && <span className="rounded bg-teal-100 px-1.5 py-0.5 text-xs text-teal-800">🔁 weekly</span>}
+                </p>
+              </div>
+            ))}
+          </Card>
+
+          {state.dropIn && (
+            <Card className="border-2 border-teal-200">
+              <h3 className="font-semibold">🏠 Drop-in hour (Sprechstunde der Dorfkümmerin)</h3>
+              <p className="mt-1 text-sm">
+                <b>{state.dropIn.day} {state.dropIn.time}</b> · {state.dropIn.place}
+              </p>
+              <p className="text-xs text-slate-500">{state.dropIn.note} — residents come for the doctor and can ask for help in person. No smartphone needed.</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm">
+                <a href="/hilfe-karte.html" target="_blank" rel="noreferrer" className="rounded-lg bg-teal-600 py-2 font-semibold text-white">🖨️ Fridge card</a>
+                <a href="/aushang.html" target="_blank" rel="noreferrer" className="rounded-lg bg-white py-2 font-semibold text-teal-700 ring-1 ring-teal-300">📌 Bakery notice</a>
+              </div>
+            </Card>
+          )}
+
           <Card className="border-2 border-amber-200">
             <h3 className="font-semibold">💛 Needs more everyday support</h3>
             <p className="text-xs text-slate-500">From volunteers' private visit notes — not emergencies.</p>
@@ -90,13 +137,14 @@ export default function Community() {
               return (
                 <div key={r.id} className="mt-2 flex items-center justify-between text-sm">
                   <span>{r.name}, {r.age}</span>
-                  {s === 'today-ok' && <span className="text-green-700">✅ doing well</span>}
+                  {s === 'today-ok' && <span className="text-green-700">✅ doing well{r.lastCheckInVia && CHANNELS[r.lastCheckInVia] ? <span title={CHANNELS[r.lastCheckInVia].en}> · {CHANNELS[r.lastCheckInVia].icon}</span> : null}</span>}
                   {s === 'today-help' && <span className="text-orange-600">🙋 asked for help</span>}
                   {!s && <span className="rounded bg-amber-100 px-2 text-amber-800">⚠ no reply — call {r.emergencyContact.split(' (')[0].split(' ·')[0]}</span>}
                 </div>
               )
             })}
-            <p className="mt-2 text-xs text-slate-500">No reply → 2nd reminder → contact person → coordinator. Not a medical diagnosis.</p>
+            <p className="mt-2 text-xs text-slate-500">{Object.values(CHANNELS).map((c) => `${c.icon} ${c.en}`).join(' · ')}</p>
+            <p className="mt-1 text-xs text-slate-500">No reply → 2nd reminder → contact person → coordinator. Not a medical diagnosis.</p>
           </Card>
 
           <Card>
