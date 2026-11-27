@@ -1,7 +1,7 @@
 import CommunityMap, { MapLegend } from '../components/CommunityMap'
 import OnBehalfForm, { ViaBadge } from '../components/OnBehalfForm'
 import { Card } from '../components/ui'
-import { CHANNELS, TYPE_LABEL, VILLAGE_NAME } from '../data/seed'
+import { CHANNELS, MUNICIPALITIES, REGION_NAME, TYPE_LABEL } from '../data/seed'
 import { bondStrength } from '../lib/matching'
 import { actions, useStore } from '../store'
 
@@ -14,7 +14,9 @@ export default function Community() {
   const open = state.requests.filter((q) => q.status === 'open' || q.status === 'escalated').length
   const done = state.requests.filter((q) => q.status === 'completed').length
   const checkedIn = state.residents.filter((r) => r.lastCheckIn).length
-  const leaderboard = [...state.volunteers].filter((v) => v.verified).sort((a, b) => b.points - a.points)
+  const verified = state.volunteers.filter((v) => v.verified)
+  const leaderboard = [...verified].sort((a, b) => b.points - a.points).slice(0, 5)
+  const nursesToday = (state.nurses ?? []).filter((n) => n.accepting && n.booked < n.capacity).length
   const needsSupport = state.residents.filter((r) => r.flags.some((f) => !f.handled))
   const vname = (id) => state.volunteers.find((v) => v.id === id)?.name.split(' ')[0]
   const pairs = state.residents
@@ -22,6 +24,7 @@ export default function Community() {
     .sort((a, b) => b.strength - a.strength)
   const alone = state.residents.filter((r) => !Object.values(r.bonds ?? {}).some((b) => b.visits > 0))
   const rname = (id) => state.residents.find((r) => r.id === id)?.name ?? id
+  const rmuni = (id) => MUNICIPALITIES[state.residents.find((r) => r.id === id)?.municipality]?.name
   const activeReqs = state.requests.filter((q) => q.status !== 'completed')
   const coordFirst = state.coordinator?.name.split(' ')[0] ?? 'Coordinator'
 
@@ -34,10 +37,18 @@ export default function Community() {
         <Kpi n={`${checkedIn}/${state.residents.length}`} l="Daily check-ins" color="text-blue-600" />
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-white px-4 py-2 text-sm text-slate-600 ring-1 ring-slate-200">
+        <span className="font-semibold text-slate-800">🌐 Network</span>
+        <span><b>{Object.keys(MUNICIPALITIES).length}</b> municipalities</span>
+        <span><b>{available}</b> volunteers available</span>
+        <span><b>{nursesToday}</b> nurses accepting today</span>
+        <span><b>{open}</b> open requests</span>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         <div className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-lg font-bold">{VILLAGE_NAME} — live community map</h2>
+            <h2 className="text-lg font-bold">{REGION_NAME} — live care network</h2>
             <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">{available} available</span>
           </div>
           <CommunityMap state={state} mode="community" height={560} />
@@ -60,7 +71,7 @@ export default function Community() {
             {activeReqs.map((q) => (
               <div key={q.id} className="mt-2 rounded-lg bg-slate-50 p-2 text-sm">
                 <div className="flex justify-between gap-2">
-                  <span><b>{rname(q.residentId)}</b> · {TYPE_LABEL[q.type] ?? q.type}</span>
+                  <span><b>{rname(q.residentId)}</b>{rmuni(q.residentId) ? <span className="text-xs text-slate-500"> ({rmuni(q.residentId)})</span> : null} · {TYPE_LABEL[q.type] ?? q.type}</span>
                   <span className={`shrink-0 text-xs ${q.status === 'escalated' ? 'text-red-600' : q.status === 'accepted' ? 'text-teal-700' : 'text-amber-700'}`}>
                     {q.status === 'accepted' ? `🤝 ${vname(q.assignedTo)}` : q.status}
                   </span>
@@ -95,7 +106,7 @@ export default function Community() {
             {needsSupport.length === 0 && <p className="mt-2 text-sm text-slate-400">Nobody flagged right now.</p>}
             {needsSupport.map((r) => (
               <div key={r.id} className="mt-3 rounded-xl bg-amber-50 p-3 text-sm">
-                <p><b>{r.name}</b>, {r.age} <span className="text-xs text-slate-500">· {r.support}</span></p>
+                <p><b>{r.name}</b>, {r.age}{MUNICIPALITIES[r.municipality] ? ` · ${MUNICIPALITIES[r.municipality].name}` : ''} <span className="text-xs text-slate-500">· {r.support}</span></p>
                 {r.flags.filter((f) => !f.handled).slice(0, 3).map((f, i) => (
                   <p key={i} className="text-xs text-amber-900">{FLAG_LABEL[f.flag] ?? f.flag} — noted by {f.by}</p>
                 ))}
@@ -148,7 +159,7 @@ export default function Community() {
           </Card>
 
           <Card>
-            <h3 className="font-semibold">🏆 Volunteer leaderboard</h3>
+            <h3 className="font-semibold">🏆 Volunteer leaderboard <span className="text-xs font-normal text-slate-500">(top 5 of {verified.length} verified)</span></h3>
             {leaderboard.map((v, i) => (
               <div key={v.id} className="mt-2 flex justify-between text-sm">
                 <span>{['🥇', '🥈', '🥉'][i] ?? '·'} {v.name}</span>

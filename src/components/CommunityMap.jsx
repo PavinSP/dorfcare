@@ -51,10 +51,15 @@ export default function CommunityMap({ state, mode = 'community', viewerId, heig
   const me = mode === 'volunteer' ? volunteers.find((v) => v.id === viewerId) : null
   const home = mode === 'resident' ? resident(viewerId) : null
   const view = home ? { c: home, z: 14 } : me ? { c: me, z: 13 } : { c: REGION_CENTER, z: 12 }
+  // Regional views fit all five municipalities + Schweinfurt, so Werneck (12 km out) is never cut off.
+  const places = [...Object.values(MUNICIPALITIES), SCHWEINFURT]
+  const fit = !home && !me
+    ? { bounds: [[Math.min(...places.map((p) => p.lat)), Math.min(...places.map((p) => p.lng))], [Math.max(...places.map((p) => p.lat)), Math.max(...places.map((p) => p.lng))]], boundsOptions: { padding: [70, 70] } }
+    : { center: [view.c.lat, view.c.lng], zoom: view.z }
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm" style={{ height }}>
-      <MapContainer key={`${mode}-${viewerId ?? ''}`} center={[view.c.lat, view.c.lng]} zoom={view.z} scrollWheelZoom className="h-full w-full">
+      <MapContainer key={`${mode}-${viewerId ?? ''}`} {...fit} zoomSnap={0.25} scrollWheelZoom className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"

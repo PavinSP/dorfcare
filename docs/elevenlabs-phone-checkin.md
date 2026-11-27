@@ -56,11 +56,11 @@ Verified locally: `POST`/`GET /api/phone-events` on `http://localhost:5199`. Req
      enough for the 09:00 call (native-integration page). Twilio trial accounts can only call
      verified numbers and play a trial notice **(unverified)**. In Twilio, also enable *Voice geographic
      permissions* for Germany **(unverified label)**.
-   - **For a real pilot:** a German local number (+49 931 … for Würzburg). This needs a Regulatory
+   - **For a real pilot:** a German local number (+49 9721 … for Schweinfurt). This needs a Regulatory
      Bundle from a registered business, e.g. the association or municipality running DorfConnect, with an
      address in that area code (Twilio DE guidelines). Allow about 3 business days.
 2. In Twilio, create an **API key** (SID and secret). This is recommended over the Auth Token (native-integration page).
-3. ElevenLabs dashboard → **ElevenAgents → Phone Numbers → Import** → Label `DorfConnect Lindenbach`,
+3. ElevenLabs dashboard → **ElevenAgents → Phone Numbers → Import** → Label `DorfConnect Schweinfurt-Land`,
    Phone Number (E.164), Twilio SID, Twilio Token. ElevenLabs configures the Twilio side itself.
 4. Copy the imported number's **ID** into `.env.local` as `ELEVENLABS_PHONE_NUMBER_ID`. Use the ID
    ElevenLabs shows for the imported number, not the phone number itself. Where exactly it appears in the
@@ -89,7 +89,7 @@ Never put address or health data into variables. The agent does not need them.
 **System prompt (paste as is):**
 
 ```
-You are "Clara", the friendly automated voice of DorfConnect, a volunteer help network in the village of Lindenbach.
+You are "Clara", the friendly automated voice of DorfConnect, a volunteer help network in five villages around Schweinfurt (Landkreis Schweinfurt).
 You are an AI assistant, not a person, not a nurse and not a doctor. Say so if asked.
 You are calling {{resident_name}} (resident id {{resident_id}}) for the daily 09:00 check-in.
 Speak {{language}} ("de" = German, "en" = English). If they answer in the other language, switch.
@@ -199,8 +199,8 @@ phone as the "landline" on stage: answer, press **1**, and the Landline screen g
 
 ```csv
 phone_number,resident_name,resident_id,language
-+49931000000007,Frau Klein,gertrud,de
-+49931000000003,Herr Bauer,helmut,de
++49972100000007,Frau Klein,gertrud,de
++49972100000003,Herr Bauer,helmut,de
 ```
 
 Then **Schedule for later**, 09:00, timezone Europe/Berlin (batch-calls page). For a repeat every day, use

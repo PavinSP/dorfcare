@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CHANNELS } from '../data/seed'
+import { CHANNELS, MUNICIPALITIES, REGION_NAME } from '../data/seed'
 import { DAY_I18N, TYPE_LABEL_I18N, useLang } from '../i18n'
 import { classifyRequest } from '../lib/matching'
 import { actions, useStore } from '../store'
@@ -13,7 +13,7 @@ const L = {
     shares: '🔒 {name} teilt Check-ins und Hilfe-Anfragen mit Ihnen. {name} kann das jederzeit beenden.',
     noConsent: '🔒 {name} hat (noch) nicht zugestimmt, Informationen mit Ihnen zu teilen.',
     hello: 'Hallo {name}',
-    sub: '{parent} · Lindenbach · Sie: {city}',
+    sub: '{parent} · {town} · Sie: {city}',
     today: 'Heute',
     ok: '✅ {name} hat sich gemeldet',
     okVia: 'per {channel}',
@@ -21,7 +21,7 @@ const L = {
     help: '🙋 {name} hat heute um Hilfe gebeten',
     helpSub: 'Den Stand sehen Sie unten bei den Meldungen.',
     notYet: '⏳ Noch keine Meldung heute',
-    notYetSub: 'Schwester Clara ruft um 09:30 noch einmal an. Um 10:00 wird die Dorf-Koordinatorin informiert.',
+    notYetSub: 'Clara ruft um 09:30 noch einmal an. Um 10:00 wird die Dorf-Koordinatorin informiert.',
     alerts: 'Meldungen',
     noAlerts: 'Keine Meldungen heute.',
     medPrivacy: '🩺 Medizinische Details werden nur mit Ärzten und Pflegekräften geteilt.',
@@ -81,7 +81,7 @@ const L = {
     shares: '🔒 {name} shares check-ins and help requests with you. {name} can stop this any time.',
     noConsent: '🔒 {name} has not (yet) agreed to share information with you.',
     hello: 'Hi {name}',
-    sub: '{parent} · Lindenbach · you: {city}',
+    sub: '{parent} · {town} · you: {city}',
     today: 'Today',
     ok: '✅ {name} checked in',
     okVia: 'via {channel}',
@@ -89,7 +89,7 @@ const L = {
     help: '🙋 {name} asked for help today',
     helpSub: 'See the progress in the alerts below.',
     notYet: '⏳ No check-in yet today',
-    notYetSub: 'Nurse Clara calls again at 09:30. The village coordinator is informed at 10:00.',
+    notYetSub: 'Clara calls again at 09:30. The village coordinator is informed at 10:00.',
     alerts: 'Alerts',
     noAlerts: 'No alerts today.',
     medPrivacy: '🩺 Medical details are only shared with doctors and nurses.',
@@ -184,7 +184,7 @@ export default function Family() {
         <div className="space-y-4 p-4">
           <div>
             <h1 className="text-2xl font-bold">{fill(d.hello, { name: first(member.name) })} 👋</h1>
-            <p className="text-sm text-slate-500">{fill(d.sub, { parent: r.name, city: member.city })}</p>
+            <p className="text-sm text-slate-500">{fill(d.sub, { parent: r.name, town: MUNICIPALITIES[r.municipality]?.name ?? REGION_NAME, city: member.city })}</p>
           </div>
 
           <p className={`rounded-2xl p-3 text-sm ${member.consent ? 'bg-indigo-50 text-indigo-900' : 'bg-slate-100 text-slate-600'}`}>

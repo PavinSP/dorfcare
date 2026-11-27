@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import CommunityMap from '../components/CommunityMap'
-import { VILLAGE_NAME } from '../data/seed'
+import { MUNICIPALITIES, REGION_NAME } from '../data/seed'
 import { DAY_I18N, TYPE_LABEL_I18N, useLang } from '../i18n'
 import { classifyRequest, formatDistance, haversineKm } from '../lib/matching'
 import { canListen, listen, speak, stopSpeaking } from '../lib/speech'
@@ -59,7 +59,7 @@ function Home({ me, state, go }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm text-slate-500">{today} · {VILLAGE_NAME}</p>
+        <p className="text-sm text-slate-500">{today} · {MUNICIPALITIES[me.municipality]?.name ?? REGION_NAME}</p>
         <h1 className="text-3xl font-bold">{t('greeting', { name: me.name.split(' ')[0] })}</h1>
         <p className="mt-1 text-lg text-slate-600">{t('howAreYou')}</p>
         <p className="mt-1 text-xs text-slate-400">{me.support} · {t('everyday')}</p>

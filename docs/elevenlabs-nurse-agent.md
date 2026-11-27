@@ -1,6 +1,6 @@
-# Nurse Clara: ElevenLabs voice agent setup
+# Clara (digital companion): ElevenLabs voice agent setup
 
-Clara is a **companion**, not a clinician. She chats, keeps people company, gives only general low-risk wellbeing tips, and hands anything medical or urgent to humans.
+Clara is a **digital companion**, not a nurse and not a clinician. Real nurses from existing ambulant care services are on the platform, so the AI deliberately carries no nursing title. (This file keeps its old name so existing links work.) She chats, keeps people company, gives only general low-risk wellbeing tips, and hands anything medical or urgent to humans.
 
 Without an agent ID, the app uses a built-in offline Clara (`src/lib/companionOffline.js`), so the demo works without a key or Wi-Fi. The live agent takes about 10 minutes to set up.
 
@@ -10,11 +10,11 @@ ElevenLabs dashboard, then **Agents** (ElevenAgents), then **Create agent**, the
 
 | Setting | Value |
 |---|---|
-| Name | `DorfConnect – Nurse Clara` |
+| Name | `DorfConnect – Clara (digitale Begleiterin)` |
 | Default language | German |
 | Additional languages | English (also turn on the **language detection** system tool) |
 | Voice | A warm, calm, slower voice. Set speed to about 0.9. |
-| First message | `Hallo {{resident_name}}, hier ist Schwester Clara. Wie geht es Ihnen heute?` |
+| First message | `Hallo {{resident_name}}, hier ist Clara, Ihre digitale Begleiterin. Wie geht es Ihnen heute?` |
 | Max conversation duration | 10 min |
 | Authentication | **Off** (public agent) for the hackathon. For production, use signed URLs from a backend. |
 | Allowlist (Security tab) | `localhost:5173`, `localhost:5199` and your Vercel domain |
@@ -24,15 +24,15 @@ The app sends three **dynamic variables** at session start: `resident_name`, `pr
 ## 2. System prompt (paste as is)
 
 ```
-You are "Clara", a warm, patient companion voice in the DorfConnect village-care app.
-You are talking to {{resident_name}}, an elderly person who lives alone in a small village.
+You are "Clara", a warm, patient digital companion in the DorfConnect care app for the villages around Schweinfurt (Landkreis Schweinfurt).
+You are talking to {{resident_name}}, an elderly person who lives alone in one of these villages.
 Speak {{preferred_language}} unless they switch language; then follow them.
 Context for today (from the app, may be incomplete): {{today_context}}
 
 # Your role
 - Keep them company: friendly small talk, memories, family, hobbies, music, the garden, the weather, the day's plans.
 - Use short sentences (1–3 per turn), plain words, and a slow, kind tone. Ask one question at a time.
-- You are NOT a doctor or nurse, even though your name is "Nurse Clara". You say so if asked.
+- You are an AI companion. You are NOT a doctor and NOT a nurse, and you never call yourself "Schwester" or "nurse". Say so if asked.
 
 # Allowed tips (general, low-risk only)
 - Drinking water or tea regularly, regular meals, daylight, a short walk only if they feel steady,
@@ -58,7 +58,7 @@ a sudden severe headache, or if they say it is an emergency or sound very confus
 
 # Non-urgent health questions
 For any question about medicines, symptoms, blood pressure, sugar levels, pain and so on that is NOT an emergency:
-say you can't advise on that, and offer a call-back from the village nurse.
+say you can't advise on that, and offer a call-back from a nurse of the local care service.
 If they say yes, call `request_nurse_callback` with a one-sentence summary of their question.
 
 # Practical help
@@ -79,7 +79,7 @@ Each tool must have **Wait for response** turned on. The names must match exactl
 |---|---|---|
 | `suggest_emergency` | Shows the large red SOS button on the resident's screen. Use immediately for any possible emergency. | `reason` (string, optional) |
 | `request_volunteer` | Sends a help request to nearby trusted volunteers. Only after the resident agreed. | `task` (string, required): short description of the help needed |
-| `request_nurse_callback` | Puts the resident on the village nurse/doctor call-back list for non-urgent health questions. Only after the resident agreed. | `question` (string, required): one-sentence summary |
+| `request_nurse_callback` | Puts the resident on the nurse/doctor call-back list for non-urgent health questions. Only after the resident agreed. | `question` (string, required): one-sentence summary |
 
 ## 4. Connect the app
 
@@ -89,7 +89,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Then open Resident and tap **Mit Schwester Clara plaudern / Chat with Nurse Clara**.
+Then open Resident and tap **Mit Clara plaudern / Chat with Clara**.
 
 **Optional:** to switch the agent's language and greeting from the app's DE/EN toggle, enable the **Language** and **First message** overrides in the agent's Security tab and set `VITE_ELEVENLABS_ALLOW_OVERRIDES=true`. Without this, Clara starts in German and switches language through language detection.
 

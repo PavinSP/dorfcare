@@ -94,7 +94,7 @@ footer { color: var(--muted); font-size: 0.8rem; }
   <section>
     <div class="thesis">
       <span class="eyebrow">The thesis in one paragraph</span>
-      <p><b>DorfConnect is not a consumer app. It is the care-coordination service a village is missing.</b> Municipalities, GP practices and the care insurance already pay for pieces of rural care: rides, home visits, everyday help, emergency alarms. Nobody coordinates those pieces. We sell the coordination layer (software, a local coordinator and a vetted volunteer network) to the municipality. We earn more from the statutory money that flows through it, and residents use it for free.</p>
+      <p><b>DorfConnect is not a consumer app. It is the care-coordination service a village is missing.</b> Germany already has 15,549 ambulant care services. We don't build hospitals or put a nurse in every village: we connect the nurses, regional doctors and community volunteers who already exist. Municipalities, GP practices and the care insurance already pay for pieces of rural care, and nobody coordinates them. We sell that coordination layer to the municipality, earn from the statutory money that flows through it, and residents use it for free.</p>
     </div>
   </section>
 
@@ -106,12 +106,31 @@ footer { color: var(--muted); font-size: 0.8rem; }
       <tbody>
         <tr><td>Doctors retire, nobody takes over</td><td>Shared doctor rotation across 3 villages</td><td><span class="chip y">partial</span></td><td>Show the GP's side: home visits by practice staff count towards the new standby payment and are paid outside the budget from 2027</td></tr>
         <tr><td>Months of waiting</td><td>Slot booking, nurse call-back queue</td><td><span class="chip y">weak</span></td><td>"What do I need?" routing chosen by the person: 112, 116117, nurse call-back, video doctor today, next rotation slot, pharmacy</td></tr>
-        <tr><td>Long drives</td><td>Rotation in the village; nurse + video doctor card</td><td><span class="chip y">partial</span></td><td>Working nurse-at-home tele-consult; e-prescription with volunteer pickup</td></tr>
+        <tr><td>Long drives</td><td>Doctor rotates through 3 Gemeindehäuser; nurses from existing care services do home visits and assisted tele-consults</td><td><span class="chip g">strong</span></td><td>E-prescription with volunteer pickup</td></tr>
         <tr><td>Older people without a car</td><td>Volunteer rides, voice-first app, check-ins</td><td><span class="chip g">strong</span></td><td>Offer Rufbus/Callheinz first, volunteer as fallback</td></tr>
         <tr><td>Closer to home</td><td>Volunteers, companion, relationships, ratings, SOS</td><td><span class="chip g">strong</span></td><td>Already our differentiator</td></tr>
       </tbody>
     </table></div>
     <p class="muted">Overall about 60%. The community half is unusually strong; the medical-access half needs the three fixes above for the jury.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Pilot region</span>
+    <h2>Five municipalities around Schweinfurt</h2>
+    <p>Real places, verified official numbers (31 Dec 2025). The people in the demo are fictional.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Municipality</th><th>Population</th><th>65+</th><th>75+</th><th>To Schweinfurt</th><th>Existing ambulant care service (examples, not affiliated)</th></tr></thead>
+      <tbody>
+        <tr><td>Werneck</td><td class="num">10,056</td><td class="num">2,569</td><td class="num">1,114</td><td class="num">≈ 12 km</td><td>Caritas Sozialstation St. Michael (<a href="https://www.caritas.de/adressen/sozialstation-st.-michael-e.-v/97440-werneck/109170">caritas.de</a>)</td></tr>
+        <tr><td>Dittelbrunn</td><td class="num">7,460</td><td class="num">1,992</td><td class="num">1,001</td><td class="num">≈ 4 km</td><td class="muted">none confirmed</td></tr>
+        <tr><td>Schonungen</td><td class="num">7,575</td><td class="num">1,962</td><td class="num">899</td><td class="num">≈ 5 km</td><td>Caritas Sozialstation Liborius Wagner <span class="unv">(Landkreis guide 2018)</span></td></tr>
+        <tr><td>Niederwerrn</td><td class="num">8,347</td><td class="num">1,905</td><td class="num">926</td><td class="num">≈ 4 km</td><td>Diakoniestation Niederwerrn (<a href="https://www.diakonie-schweinfurt.de/hilfe-zu-hause">Diakonie Schweinfurt</a>)</td></tr>
+        <tr><td>Gochsheim</td><td class="num">6,082</td><td class="num">1,497</td><td class="num">723</td><td class="num">≈ 4.5 km</td><td>Caritas-Sozialstation St. Matthias <span class="unv">(Landkreis guide 2018)</span></td></tr>
+        <tr><td><b>Total</b></td><td class="num"><b>39,520</b></td><td class="num"><b>9,925</b></td><td class="num"><b>4,663</b></td><td></td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Population: <a href="https://www.statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/a1310c_202500.pdf">LfStat A1310C, 31 Dec 2025</a> (65+ and totals are our sums). Distances: straight line from OSM centre points. Whole Landkreis Schweinfurt: 28,010 of 113,608 residents (24.7%) are 65+.</p>
+    <p><b>Honest framing for the jury:</b> the Schweinfurt GP planning areas are not officially underserved today (coverage 95.85–107.55%). But in <b>Schweinfurt Süd</b> (Werneck, Gochsheim), <b>5 GP seats are already open and 15 of 36 GPs are 60 or older</b> (<a href="https://www.kvb.de/fileadmin/kvb/Ueber-uns/Versorgungssituation/Versorgungsatlas/KVB-Versorgungsatlas-Hausaerzte.pdf">KVB Versorgungsatlas, Aug 2026</a>, <a href="https://www.kvb.de/fileadmin/kvb/Ueber-uns/Bekanntmachungen/Landesauschuss/2026/260807/LA-Beschluss-260807-Anzahl-ZM-bereits-entsperrte-PB.pdf">KVB decision 07.08.2026</a>). DorfConnect is built for the gap that is coming, before it arrives.</p>
   </section>
 
   <section>
@@ -123,6 +142,9 @@ footer { color: var(--muted); font-size: 0.8rem; }
       <div class="stat"><b>+35</b><span>full-time GP equivalents in Bavaria since 2022, despite 200+ new GPs</span><a href="https://www.kvb.de/fileadmin/kvb/Ueber-uns/Pressearbeit/Presseinformationen/2025/KVB-PI-251218-Jahrespressekonferenz-2025.pdf">KVB, Dec 2025</a></div>
       <div class="stat"><b>1,482</b><span>of 2,056 Bavarian municipalities have under 5,000 people (3.42 M residents)</span><a href="https://statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/a1200c_202541.pdf">LfStat 2025</a></div>
       <div class="stat"><b>244</b><span>of 308 municipalities in Lower Franconia are under 5,000 (516k people)</span><a href="https://statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/a1200c_202541.pdf">LfStat 2025</a></div>
+      <div class="stat"><b>15,549</b><span>ambulant care services in Germany (2023): the nurses we connect already exist</span><a href="https://www.destatis.de/DE/Themen/Gesellschaft-Umwelt/Gesundheit/Pflege/Tabellen/pflegeeinrichtungen-deutschland.html">Destatis</a></div>
+      <div class="stat"><b>4.9 M</b><span>of 5.7 M people needing care live at home (86%)</span><a href="https://www.destatis.de/DE/Presse/Pressemitteilungen/2024/12/PD24_478_224.html">Destatis 2024</a></div>
+      <div class="stat"><b>47%</b><span>of rural GP practices employ a NäPA or VERAH; 84% of those offer home visits by them</span><a href="https://www.aok.de/pp/bv/wido-pm/hausaerztliche-versorgung/">WIdO, AOK billing data</a></div>
     </div>
   </section>
 
@@ -139,6 +161,7 @@ footer { color: var(--muted); font-size: 0.8rem; }
         <tr><td><b>Municipality</b> (main buyer)</td><td>Mayor, senior-affairs officer (Seniorenbeauftragte), Verwaltungsgemeinschaft, Landkreis health region office</td><td>A visible answer to the doctor shortage; data for the senior-policy plan</td><td><b>Yes: licence</b></td></tr>
         <tr><td><b>GP practice / MVZ</b></td><td>The practice covering the villages, usually short-staffed</td><td>Planned home visits by practice staff, rotation, tele-consults, fewer no-shows</td><td>Yes: module</td></tr>
         <tr><td><b>Care insurance</b></td><td>Pflegekasse, via the €131/month relief budget</td><td>A recognised everyday-help service in places with none</td><td>Yes: per hour of help</td></tr>
+        <tr><td><b>Ambulant care services</b></td><td>Sozialstationen and Pflegedienste already driving between villages (e.g. Caritas, Diakonie)</td><td>Visit requests sorted by service area and free capacity, fewer wasted trips, tele-consults with a doctor</td><td>Optional module; their nursing is paid by insurance as today</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -154,6 +177,7 @@ footer { color: var(--muted); font-size: 0.8rem; }
         <tr><td class="num">3</td><td><b>Everyday help billed to the Pflegekasse</b> via a recognised helper group</td><td>€131/month per person with a care grade (§45b SGB XI); provider recognised under Bavarian AVSG by the Landesamt für Pflege; volunteers max 3 people each (<a href="https://www.bundesgesundheitsministerium.de/fileadmin/Dateien/3_Downloads/P/Pflegeversicherung_Leistungsbeitraege/Uebersicht_Leistungsbetraege_2026.pdf">BMG</a>, <a href="https://stmgp.bayern.de/wp-content/uploads/2024/03/202401_flyer_ehrenamtlicheeinzelperson.pdf">StMGP</a>)</td><td class="num">Coordination fee per billed hour <span class="hyp">hypothesis</span></td><td>Year 1–2, with a partner provider</td></tr>
         <tr><td class="num">4</td><td><b>Family premium</b>: check-in status, alerts, SOS with a contracted emergency-alarm partner</td><td>Hausnotruf costs €27–40/month; Pflegekasse covers €27 with contracted providers (<a href="https://www.verbraucherzentrale.de/wissen/gesundheit-pflege/pflege-zu-hause/hausnotrufsysteme-erklaert-so-helfen-sie-im-notfall-funktionen-vorteile-kosten-10566">Verbraucherzentrale</a>)</td><td class="num">€9–15/month <span class="hyp">hypothesis</span></td><td>Year 2</td></tr>
         <tr><td class="num">5</td><td><b>Practice module</b> (home-visit planning, rotation, tele-consult)</td><td>New €10k Mobilitätsprämie for mobile practice staff (<a href="https://www.bayern.de/wp-content/uploads/2026/04/260421-Ministerrat.pdf">Bavarian cabinet, Apr 2026</a>); staff home visits (GOP 38100/38105) paid outside the budget from Q1 2027 (<a href="https://www.kbv.de/praxis/tools-und-services/praxisnachrichten/2026/08-27/epa-verguetung-noch-bis-jahresende-erste-ebm-anpassungen-infolge-des-spargesetzes-beschlossen">KBV</a>)</td><td class="num">€150–300/practice/month <span class="hyp">hypothesis</span></td><td>Year 2</td></tr>
+        <tr><td class="num">5b</td><td><b>Care-service module</b> (visit requests, capacity, assisted tele-consult)</td><td>Nursing itself stays billed to care/health insurance as today; the module saves driving time and fills free capacity</td><td class="num">€99–199/service/month <span class="hyp">hypothesis</span></td><td>Year 2</td></tr>
         <tr><td class="num">6</td><td><b>Innovationsfonds</b> consortium (with THWS + a health insurer)</td><td>€80M/yr for new care models in 2026; up to €75k to develop a full proposal (<a href="https://innovationsfonds.g-ba.de/downloads/media/397/2026-08-10_Ueberblick-fuer-Antragstellende-ueber-Foerderbekanntmachungen-2026-und-Verfahrensarten.pdf">G-BA</a>)</td><td class="num">Grant</td><td>Year 2–3</td></tr>
         <tr><td class="num">7</td><td><b>Selective contracts</b> with health insurers (§140a SGB V)</td><td>Needs outcome evidence first (from stream 6)</td><td class="num">Per enrolled patient</td><td>Year 3+</td></tr>
         <tr><td class="num">–</td><td>Digital care app (DiPA)</td><td>Up to €40 + €30/month, but zero apps listed so far (<a href="https://www.bundesgesundheitsministerium.de/fileadmin/Dateien/3_Downloads/Gesetze_und_Verordnungen/GuV/D/1_DiPAV-AendVO_RefE_final.pdf">BMG draft, Jun 2026</a>)</td><td class="num">Not now</td><td>Watch</td></tr>
@@ -196,8 +220,8 @@ footer { color: var(--muted); font-size: 0.8rem; }
     <span class="eyebrow">7 · Go-to-market</span>
     <h2>From hackathon to paid pilot</h2>
     <div class="phases">
-      <div class="phase"><span class="when">Next 90 days</span><div><b>Validate.</b> 15+ interviews: mayors and senior-affairs officers in Landkreis Würzburg, 3 GP practices, a home-care service, families. Goal: one letter of intent. Apply for FLÜGGE or EXIST via the THWS founder office; ask genes!s about the Startbahn27 accelerator route.</div></div>
-      <div class="phase"><span class="when">2027</span><div><b>Paid pilot in one Verwaltungsgemeinschaft</b> (3–5 villages), direct award under €100k. Partners: one GP practice, one home-care provider, one recognised helper-group carrier (e.g. a local welfare organisation), one Hausnotruf provider. Measure: check-in adherence, rides delivered, days to appointment, volunteer retention, loneliness (3-item UCLA scale).</div></div>
+      <div class="phase"><span class="when">Next 90 days</span><div><b>Validate.</b> 15+ interviews: mayors and senior-affairs officers in the five pilot municipalities (Landkreis Schweinfurt), 3 GP practices, 2 Sozialstationen, families. Goal: one letter of intent. Apply for FLÜGGE or EXIST via the THWS founder office; ask genes!s about the Startbahn27 accelerator route.</div></div>
+      <div class="phase"><span class="when">2027</span><div><b>Paid pilot in the Schweinfurt cluster</b> (3–5 municipalities), direct award under €100k. Partners: one GP practice, the local Sozialstationen, one recognised helper-group carrier (e.g. a local welfare organisation), one Hausnotruf provider. Measure: check-in adherence, rides delivered, days to appointment, volunteer retention, loneliness (3-item UCLA scale).</div></div>
       <div class="phase"><span class="when">2028</span><div><b>10–20 municipalities in Lower Franconia.</b> Innovationsfonds consortium with THWS and an insurer. Integration or channel deal with Smartes Land (StadtLand.Funk).</div></div>
       <div class="phase"><span class="when">2029+</span><div><b>Bavaria, then other states</b>, using the pilot evidence for selective insurer contracts.</div></div>
     </div>

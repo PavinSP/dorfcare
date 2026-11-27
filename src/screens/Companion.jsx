@@ -146,7 +146,7 @@ function LiveSession({ me, context, onMessage, onAction }) {
         overrides: {
           agent: {
             language: lang,
-            firstMessage: lang === 'de' ? `Hallo ${firstName}, hier ist Schwester Clara. Wie geht es Ihnen heute?` : `Hello ${firstName}, it's Nurse Clara. How are you today?`,
+            firstMessage: lang === 'de' ? `Hallo ${firstName}, hier ist Clara, Ihre digitale Begleiterin. Wie geht es Ihnen heute?` : `Hello ${firstName}, it's Clara, your digital companion. How are you today?`,
           },
         },
       }),
@@ -190,7 +190,7 @@ function OfflineSession({ me, onMessage, onAction }) {
   useEffect(() => {
     if (greeted.current) return
     greeted.current = true
-    const hello = lang === 'de' ? `Hallo ${firstName}, hier ist Schwester Clara. Wie geht es Ihnen heute?` : `Hello ${firstName}, it's Nurse Clara. How are you today?`
+    const hello = lang === 'de' ? `Hallo ${firstName}, hier ist Clara, Ihre digitale Begleiterin. Wie geht es Ihnen heute?` : `Hello ${firstName}, it's Clara, your digital companion. How are you today?`
     onMessage('agent', hello)
     speak(hello, speechLang)
     // eslint-disable-next-line react-hooks/exhaustive-deps

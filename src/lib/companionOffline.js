@@ -1,4 +1,4 @@
-// Offline fallback for "Nurse Clara" — used when no ElevenLabs agent is configured
+// Offline fallback for "Clara" (AI companion — not a nurse) — used when no ElevenLabs agent is configured
 // (or the venue Wi-Fi dies). Rule-based, bilingual, and deliberately conservative:
 // it only chats, gives general wellbeing tips, and points to SOS / the nurse call-back.
 

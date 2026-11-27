@@ -43,6 +43,17 @@ export function useStore() {
 
 // ---------------- actions ----------------
 
+/** Next visit slot inside the nurse's working hours ('Mo–Fr 07:00–15:00'): the day is split into `capacity` slots. */
+function slotTime(n) {
+  const [start, end] = (n.hours.match(/(\d{2}):(\d{2})/g) ?? ['08:00', '16:00']).map((t) => {
+    const [h, m] = t.split(':').map(Number)
+    return h * 60 + m
+  })
+  const slot = Math.floor((end - start) / n.capacity)
+  const mins = start + Math.min(n.booked - 1, n.capacity - 1) * slot
+  return `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`
+}
+
 /** Offer a visit to the nearest nurse who covers the resident, is accepting and has capacity (skips those who declined). */
 function offerToNextNurse(s, visit) {
   const r = s.residents.find((x) => x.id === visit.residentId)
@@ -277,7 +288,7 @@ export const actions = {
       if (accept) {
         n.booked += 1
         v.status = 'scheduled'
-        v.time = `${String(Math.min(16, 9 + n.booked)).padStart(2, '0')}:${n.booked % 2 ? '30' : '00'}`
+        v.time = slotTime(n)
         log(s, `✅ ${n.name} scheduled ${r.name.split(' ')[0]} today at ${v.time}.`, 'nurse')
       } else {
         v.declined.push(n.id)

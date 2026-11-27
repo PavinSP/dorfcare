@@ -1,92 +1,248 @@
+import { useState } from 'react'
 import { Card } from '../components/ui'
+import { MUNICIPALITIES, NURSE_TASKS } from '../data/seed'
+import { DAY_I18N, useLang } from '../i18n'
 import { actions, useStore } from '../store'
+import { TeleconsultPanel } from './Nurse'
+
+const T = {
+  de: {
+    kSlots: 'Termine diese Woche gebucht',
+    kNurses: 'Pflegekräfte nehmen heute an',
+    kFree: 'freie Besuche',
+    kOpen: 'Offene medizinische Fragen',
+    kVisits: 'Pflegebesuche heute geplant',
+    rotTitle: 'Der Arzt kommt ins Dorf — Wochenplan',
+    rotSub: 'Ärztinnen und Ärzte geben Stunden frei, DorfConnect verteilt sie auf die Gemeindehäuser. Bewohner buchen Termine.',
+    video: '📹 Video',
+    home: '🏠 Hausbesuche',
+    free: 'frei',
+    queue: '🩺 Rückruf-Liste',
+    queueSub: 'Medizinische Fragen landen hier — nie bei Ehrenamtlichen. Die App stellt keine Diagnose, Sie entscheiden.',
+    noQ: 'Keine offenen Fragen.',
+    history: 'Vorgeschichte (nur Arzt)',
+    videoCall: '📹 Videoanruf',
+    sendNurse: '👩‍⚕️ Pflege schicken',
+    task: 'Auftrag',
+    handled: 'Bearbeitet',
+    called: '📹 Zurückgerufen',
+    offered: 'angefragt bei {n} · wartet auf Antwort',
+    scheduled: '{n} kommt heute um {time}',
+    incall: '📹 Videosprechstunde läuft ({n} vor Ort)',
+    done: '✅ Erledigt',
+    unassigned: '⚠️ Keine Pflegekapazität frei — Koordination informiert',
+    tele: '📹 Videosprechstunden',
+    teleSub: 'Pflegekraft beim Patienten zu Hause, Sie per Video zugeschaltet.',
+    noTele: 'Noch keine. Wählen Sie bei „Pflege schicken“ die assistierte Videosprechstunde.',
+    join: 'Beitreten',
+    leave: 'Ausblenden',
+    dropTitle: '🏠 Sprechstunde der Dorfkümmerin am selben Vormittag',
+    dropBody: 'Die Koordinatorin ({c}) bietet eine offene Sprechstunde an, während Sie Patienten sehen — Bewohner können direkt nach dem Termin eine Heimfahrt, Einkauf oder Besuch organisieren.',
+  },
+  en: {
+    kSlots: 'Slots booked this week',
+    kNurses: 'Nurses accepting today',
+    kFree: 'free visits',
+    kOpen: 'Open medical questions',
+    kVisits: 'Nurse visits scheduled today',
+    rotTitle: 'The doctor comes to the villages — weekly rotation',
+    rotSub: 'Doctors publish the hours they can give. DorfConnect spreads them across the village halls and residents book slots.',
+    video: '📹 Video',
+    home: '🏠 Home visits',
+    free: 'free',
+    queue: '🩺 Call-back queue',
+    queueSub: 'Medical questions are routed here — never to volunteers. The app never diagnoses; you decide.',
+    noQ: 'No open questions.',
+    history: 'History (doctor-only)',
+    videoCall: '📹 Video call',
+    sendNurse: '👩‍⚕️ Send nurse',
+    task: 'Task',
+    handled: 'Handled',
+    called: '📹 Called back',
+    offered: 'offered to {n} · waiting for reply',
+    scheduled: '{n} visits today at {time}',
+    incall: '📹 Tele-consult live ({n} on site)',
+    done: '✅ Done',
+    unassigned: '⚠️ No nurse capacity — coordinator informed',
+    tele: '📹 Tele-consults',
+    teleSub: 'Nurse at the patient’s home, you join by video.',
+    noTele: 'None yet. Choose the assisted tele-consult under “Send nurse”.',
+    join: 'Join',
+    leave: 'Hide',
+    dropTitle: '🏠 Drop-in hour shares your morning',
+    dropBody: 'The coordinator ({c}) runs a help desk while you see patients — residents can arrange a ride home, shopping or a visit right after their appointment.',
+  },
+}
+
+const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
+
+const STATUS_CLS = {
+  offered: 'bg-amber-100 text-amber-900',
+  scheduled: 'bg-violet-100 text-violet-900',
+  'in-call': 'bg-red-100 text-red-800',
+  done: 'bg-green-100 text-green-800',
+  unassigned: 'bg-orange-100 text-orange-900',
+}
+
+/** Human-readable status of a nurse visit, e.g. "offered to Lena Vogt". */
+function visitStatus(v, state, t) {
+  if (!v) return ''
+  const n = state.nurses.find((x) => x.id === v.nurseId)?.name ?? '—'
+  if (v.status === 'offered') return fill(t.offered, { n })
+  if (v.status === 'scheduled') return fill(t.scheduled, { n, time: v.time })
+  if (v.status === 'in-call') return fill(t.incall, { n })
+  if (v.status === 'done') return `${t.done}${v.note ? ` · ${v.note}` : ''}`
+  return t.unassigned
+}
 
 export default function Doctor() {
   const state = useStore()
+  const { lang } = useLang()
+  const t = T[lang] ?? T.en
   const name = (id) => state.residents.find((r) => r.id === id)?.name ?? id
   const totalSlots = state.rotation.reduce((n, d) => n + d.slots.length, 0)
   const booked = state.rotation.reduce((n, d) => n + d.slots.filter((s) => s.bookedBy).length, 0)
   const waiting = state.medicalQueue.filter((m) => m.status === 'waiting')
+  const handled = state.medicalQueue.filter((m) => m.status !== 'waiting')
+  const accepting = state.nurses.filter((n) => n.accepting)
+  const freeCap = accepting.reduce((sum, n) => sum + Math.max(0, n.capacity - n.booked), 0)
+  const visitsToday = state.nurseVisits.filter((v) => ['scheduled', 'in-call', 'done'].includes(v.status)).length
+  const tele = state.nurseVisits.filter((v) => v.withDoctor)
 
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-4">
-        <Kpi n="5" l="Doctors & nurses in the rota" />
-        <Kpi n="3" l="Villages sharing them" />
-        <Kpi n={`${booked}/${totalSlots}`} l="Slots booked this week" />
-        <Kpi n="2 days" l="Avg. wait (was 6 weeks)" accent />
+        <Kpi n={`${booked}/${totalSlots}`} l={t.kSlots} />
+        <Kpi n={`${accepting.length}/${state.nurses.length}`} l={`${t.kNurses} · ${freeCap} ${t.kFree}`} />
+        <Kpi n={waiting.length} l={t.kOpen} accent={waiting.length > 0} />
+        <Kpi n={visitsToday} l={t.kVisits} />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-        <Card>
-          <h2 className="text-lg font-bold">Weekly doctor rotation — Gemeindehaus Lindenbach</h2>
-          <p className="text-sm text-slate-500">Doctors publish the hours they can give. DorfConnect fills the rota and residents book slots.</p>
-          <div className="mt-4 grid gap-3 md:grid-cols-5">
-            {state.rotation.map((d) => (
-              <div key={d.day} className="rounded-xl border border-slate-200 p-3">
-                <p className="font-semibold">{d.day}</p>
-                <p className="text-sm text-blue-700">{d.who}</p>
-                <p className="mb-2 text-xs text-slate-500">{d.service}</p>
-                {d.slots.map((s) => (
-                  <div key={s.time} className={`mb-1 rounded-md px-2 py-1 text-xs ${s.bookedBy ? 'bg-blue-100 text-blue-900' : 'bg-slate-50 text-slate-400'}`}>
-                    {s.time} {s.bookedBy ? `· ${name(s.bookedBy)}` : '· free'}
+      <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-5">
+          <Card>
+            <h2 className="text-lg font-bold">{t.rotTitle}</h2>
+            <p className="text-sm text-slate-500">{t.rotSub}</p>
+            <div className="mt-4 grid gap-3 md:grid-cols-5">
+              {state.rotation.map((d) => {
+                const place = d.place ? `📍 ${MUNICIPALITIES[d.place]?.name ?? d.place}` : d.who.includes('NäPA') ? t.home : t.video
+                return (
+                  <div key={d.day} className="rounded-xl border border-slate-200 p-3">
+                    <p className="font-semibold">{lang === 'de' ? DAY_I18N.de[d.day] ?? d.day : d.day}</p>
+                    <p className="text-sm font-semibold text-teal-700">{place}</p>
+                    <p className="text-sm text-blue-700">{d.who}</p>
+                    <p className="mb-2 text-xs text-slate-500">{lang === 'de' ? d.serviceDe ?? d.service : d.service}</p>
+                    {d.slots.map((s) => (
+                      <div key={s.time} className={`mb-1 rounded-md px-2 py-1 text-xs ${s.bookedBy ? 'bg-blue-100 text-blue-900' : 'bg-slate-50 text-slate-400'}`}>
+                        {s.time} · {s.bookedBy ? name(s.bookedBy) : t.free}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Card>
+                )
+              })}
+            </div>
+          </Card>
+
+          <Card className="border-2 border-indigo-200">
+            <h3 className="font-semibold">{t.tele}</h3>
+            <p className="text-xs text-slate-500">{t.teleSub}</p>
+            {tele.length === 0 && <p className="mt-3 text-sm text-slate-400">{t.noTele}</p>}
+            <div className="mt-3 space-y-3">
+              {tele.map((v) => <TeleRow key={v.id} v={v} state={state} t={t} lang={lang} />)}
+            </div>
+          </Card>
+        </div>
 
         <div className="space-y-5">
           <Card>
-            <h3 className="font-semibold">🩺 Call-back queue</h3>
-            <p className="text-xs text-slate-500">Medical questions are routed here — never to volunteers.</p>
-            {waiting.length === 0 && <p className="mt-3 text-sm text-slate-400">No open questions.</p>}
-            {waiting.map((m) => {
-              const r = state.residents.find((x) => x.id === m.residentId)
-              return (
-                <div key={m.id} className="mt-3 rounded-xl bg-violet-50 p-3 text-sm">
-                  <p><b>{r.name}</b>, {r.age}</p>
-                  <p className="text-slate-700">“{m.text}”</p>
-                  <p className="mt-1 text-xs text-slate-500">History (doctor-only): {r.medical}</p>
-                  <div className="mt-2 flex gap-2">
-                    <button onClick={() => actions.answerMedical(m.id)} className="flex-1 rounded-lg bg-violet-600 py-1.5 text-white">📹 Video call</button>
-                    <button onClick={() => actions.answerMedical(m.id)} className="flex-1 rounded-lg bg-white py-1.5 ring-1 ring-violet-300">Send nurse</button>
-                  </div>
-                </div>
-              )
-            })}
+            <h3 className="font-semibold">{t.queue}</h3>
+            <p className="text-xs text-slate-500">{t.queueSub}</p>
+            {waiting.length === 0 && <p className="mt-3 text-sm text-slate-400">{t.noQ}</p>}
+            {waiting.map((m) => <QueueItem key={m.id} m={m} state={state} t={t} lang={lang} />)}
+            {handled.length > 0 && (
+              <div className="mt-4 border-t border-slate-100 pt-3">
+                <p className="text-xs font-semibold uppercase text-slate-400">{t.handled}</p>
+                {handled.map((m) => {
+                  const v = state.nurseVisits.find((x) => x.id === m.nurseVisitId)
+                  return (
+                    <div key={m.id} className="mt-2 text-sm">
+                      <p><b>{name(m.residentId)}</b> · <span className="text-slate-500">“{m.text}”</span></p>
+                      <p className={`mt-1 inline-block rounded px-1.5 py-0.5 text-xs ${m.status === 'answered' ? 'bg-slate-100 text-slate-700' : STATUS_CLS[v?.status] ?? ''}`} data-testid="medical-status">
+                        {m.status === 'answered' ? t.called : `👩‍⚕️ ${NURSE_TASKS[v?.task]?.[lang] ?? ''}: ${visitStatus(v, state, t)}`}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </Card>
 
           {state.dropIn && (
             <Card className="border-2 border-teal-200">
-              <h3 className="font-semibold">🏠 Drop-in hour shares your morning</h3>
+              <h3 className="font-semibold">{t.dropTitle}</h3>
               <p className="mt-1 text-sm text-slate-600">
-                <b>{state.dropIn.day} {state.dropIn.time}</b> · {state.dropIn.place}. The coordinator ({state.coordinator?.name}) runs a help desk in the
-                Gemeindehaus while you see patients — residents can arrange a ride home, shopping or a visit right after their appointment.
+                <b>{lang === 'de' ? state.dropIn.dayDe ?? state.dropIn.day : state.dropIn.day} {state.dropIn.time}</b> · {state.dropIn.place}.{' '}
+                {fill(t.dropBody, { c: state.coordinator?.name })}
               </p>
             </Card>
           )}
-
-          <Card>
-            <h3 className="font-semibold">🤝 Remote doctor + local nurse</h3>
-            <p className="mt-1 text-sm text-slate-600">
-              When a resident needs a check but no doctor is in the village, the visiting nurse goes to the home and the remote doctor joins by video.
-            </p>
-            <div className="mt-3 rounded-xl bg-slate-900 p-4 text-center text-white">
-              <p className="text-3xl">👩‍⚕️ ↔ 📹 ↔ 👨‍⚕️</p>
-              <p className="mt-1 text-xs opacity-70">Nurse Lena Vogt (on site) · Dr. Yilmaz (remote)</p>
-            </div>
-          </Card>
         </div>
       </div>
     </div>
   )
 }
 
+function QueueItem({ m, state, t, lang }) {
+  const [task, setTask] = useState('assessment')
+  const r = state.residents.find((x) => x.id === m.residentId)
+  if (!r) return null
+  return (
+    <div className="mt-3 rounded-xl bg-violet-50 p-3 text-sm">
+      <p><b>{r.name}</b>, {r.age} · {MUNICIPALITIES[r.municipality]?.name}</p>
+      <p className="text-slate-700">“{m.text}”</p>
+      <p className="mt-1 text-xs text-slate-500">{t.history}: {lang === 'de' ? r.medicalDe ?? r.medical : r.medical}</p>
+      <label className="mt-2 block text-xs text-slate-500">
+        {t.task}
+        <select aria-label={t.task} value={task} onChange={(e) => setTask(e.target.value)} className="mt-0.5 w-full rounded-lg bg-white px-2 py-1.5 text-sm text-slate-800 ring-1 ring-violet-200">
+          {Object.entries(NURSE_TASKS).map(([k, v]) => <option key={k} value={k}>{v[lang] ?? v.en}</option>)}
+        </select>
+      </label>
+      <div className="mt-2 flex gap-2">
+        <button onClick={() => actions.answerMedical(m.id)} className="flex-1 rounded-lg bg-violet-600 py-1.5 text-white">{t.videoCall}</button>
+        <button
+          onClick={() => actions.requestNurseVisit(m.residentId, { task, text: m.text, source: 'doctor', medicalId: m.id })}
+          className="flex-1 rounded-lg bg-white py-1.5 ring-1 ring-violet-300"
+        >
+          {t.sendNurse}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function TeleRow({ v, state, t, lang }) {
+  const [joined, setJoined] = useState(false)
+  const r = state.residents.find((x) => x.id === v.residentId)
+  return (
+    <div className={`rounded-xl border p-3 text-sm ${v.status === 'in-call' ? 'border-red-300 bg-red-50' : 'border-slate-200'}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p><b>{r?.name}</b>, {r?.age} · {MUNICIPALITIES[r?.municipality]?.name}</p>
+        {v.status === 'in-call' && (
+          <button onClick={() => setJoined((j) => !j)} className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+            {joined ? t.leave : `📹 ${t.join}`}
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-slate-500">{NURSE_TASKS[v.task]?.[lang] ?? v.task}{v.text ? ` · “${v.text}”` : ''}</p>
+      <p className={`mt-1 inline-block rounded px-1.5 py-0.5 text-xs ${STATUS_CLS[v.status] ?? ''}`}>{visitStatus(v, state, t)}</p>
+      {joined && v.status === 'in-call' && <TeleconsultPanel visit={v} state={state} viewer="doctor" />}
+    </div>
+  )
+}
+
 const Kpi = ({ n, l, accent }) => (
-  <div className={`rounded-2xl p-4 shadow-sm ${accent ? 'bg-teal-600 text-white' : 'bg-white'}`}>
+  <div className={`rounded-2xl p-4 shadow-sm ${accent ? 'bg-violet-600 text-white' : 'bg-white'}`}>
     <p className="text-2xl font-bold">{n}</p>
-    <p className={`text-xs ${accent ? 'text-teal-50' : 'text-slate-500'}`}>{l}</p>
+    <p className={`text-xs ${accent ? 'text-violet-50' : 'text-slate-500'}`}>{l}</p>
   </div>
 )
