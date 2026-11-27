@@ -69,10 +69,10 @@ const L = {
       ['🏠', 'Haushalt', 'Hilfe im Garten und Müll rausbringen bei {name}.'],
       ['☕', 'Gesellschaft', 'Ein Besuch auf einen Kaffee, {name} ist oft allein.'],
     ],
-    premium: '⭐ Familie Plus',
-    premiumPrice: '9 € / Monat',
-    premiumList: ['Sofort-SMS bei Alarm oder fehlendem Check-in', 'Wöchentliche Zusammenfassung', 'Mehrere Familienmitglieder'],
-    hypothesis: 'Preis-Hypothese — wird getestet',
+    premium: '🏠 DorfConnect pro Haushalt',
+    premiumPrice: '3,99 € / Monat',
+    premiumList: ['Clara, Check-ins, Hilfe von Nachbarn und Fahrten organisieren', 'Sofort-Nachricht an die Familie bei Alarm oder fehlendem Check-in', 'Alle Familienmitglieder inklusive', 'SOS und 112 sind immer kostenlos'],
+    hypothesis: 'Oft zahlt die Familie · Pflege läuft wie bisher über die Versicherung',
     interested: 'Interesse melden',
     thanksInterest: 'Danke! Wir melden uns (keine Zahlung).',
     noFamily: 'Noch keine Familienmitglieder verknüpft.',
@@ -137,10 +137,10 @@ const L = {
       ['🏠', 'Household', 'Help in the garden and taking out the bins for {name}.'],
       ['☕', 'Company', 'A visit for coffee and a chat, {name} is often alone.'],
     ],
-    premium: '⭐ Family Plus',
-    premiumPrice: '€9 / month',
-    premiumList: ['Instant SMS alerts for alarms or missed check-ins', 'Weekly summary', 'Multiple family members'],
-    hypothesis: 'Pricing hypothesis — to test',
+    premium: '🏠 DorfConnect per household',
+    premiumPrice: '€3.99 / month',
+    premiumList: ['Clara, check-ins, help from neighbours and rides', 'Instant family alerts for alarms or missed check-ins', 'All family members included', 'SOS and 112 are always free'],
+    hypothesis: 'Often paid by the family · care stays billed to insurance',
     interested: "I'm interested",
     thanksInterest: 'Thanks! We will be in touch (no payment).',
     noFamily: 'No family members linked yet.',
@@ -478,7 +478,7 @@ function Premium({ d }) {
       <ul className="mt-1 list-inside list-disc text-sm text-slate-700">
         {d.premiumList.map((x) => <li key={x}>{x}</li>)}
       </ul>
-      <p className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">🧪 {d.hypothesis}</p>
+      <p className="mt-2 inline-block rounded-full bg-teal-50 px-2 py-0.5 text-xs font-semibold text-teal-800">{d.hypothesis}</p>
       <button onClick={() => setInterested(true)} disabled={interested} className="mt-2 w-full rounded-xl bg-slate-100 py-2 text-sm text-slate-700 disabled:text-green-700">
         {interested ? d.thanksInterest : d.interested}
       </button>

@@ -83,7 +83,7 @@ All people and organisations are fictional; the municipalities are real.
 | 14 | 1:27–1:32 | Arrival; evening rating | Hospital entrance → Maria's phone |
 | 15 | 1:32–1:42 | The network: rotating doctors, care services | Big map + week strip |
 | 16 | 1:42–1:50 | Who benefits | Four cards around a phone |
-| 17 | 1:50–1:56 | The price: €3.99 a month | Phone + price tag |
+| 17 | 1:50–1:56 | The price: €3.99 a month per household | Phone + price tag |
 | 18 | 1:56–2:00 | Logo and closing line | End card |
 
 Voiceover budget: about 230 narrator words plus about 80 words of dialogue, roughly 155 words a minute. Keep the reads calm and let the sound effects fill the gaps; if it feels rushed, drop narrator line 13 ("And that evening, a thank-you."). Read time is noted per shot.
@@ -218,8 +218,8 @@ Voiceover budget: about 230 narrator words plus about 80 words of dialogue, roug
 - **Repo:** rewards in `seed.js` (`rewards`: Dorfcafé, €5 supermarket voucher, village festival ticket), Volunteer view "Rewards from local sponsors".
 
 ### Shot 17 · 1:50–1:56 · The price
-- **Visual:** the four cards fold into the phone. A price tag swings in and settles: **€3.99 / month**. Under it: "Connecting needs and services." Small print fades in: "Nursing and doctor visits are billed to insurance as usual."
-- **VO (narrator, 5 s):** "Everything has a price, even care. Ours is three ninety-nine a month."
+- **Visual:** the four cards fold into the phone. A price tag swings in and settles: **€3.99 / month per household**. Under it: "Connecting needs and services." Small print fades in: "SOS and 112 are always free · nursing and doctor visits are billed to insurance as usual · the municipality funds the local network."
+- **VO (narrator, 5 s):** "Everything has a price, even care. Ours is three ninety-nine a month per household."
 
 ### Shot 18 · 1:56–2:00 · End card
 - **Visual:** teal background, DorfConnect heart logo, "DorfConnect" and "Your village. Your care. Your community." Last line fades in below.
@@ -247,7 +247,7 @@ Narrator lines in order (about 230 words):
 13. And that evening, a thank-you.
 14. Behind Maria's morning is a network. Doctors from different practices take turns in the village halls, as approved branch practices. Nurses come from care services that already exist. And sixteen neighbours are ready to help.
 15. Doctors reach more patients without extra driving. Nurses are paid by insurance, as today. Volunteers earn coupons from local shops. And families stop worrying.
-16. Everything has a price, even care. Ours is three ninety-nine a month.
+16. Everything has a price, even care. Ours is three ninety-nine a month per household.
 17. We can't put a doctor in every village. We can make sure nobody there is alone.
 
 Dialogue (character voices, about 80 words): shots 4, 10 and 11 above.
@@ -264,7 +264,7 @@ Dialogue (character voices, about 80 words): shots 4, 10 and 11 above.
 | Doctors as "approved branch practices" in village halls | §24 Abs. 3 Ärzte-ZV (KVB Filiale); statuses in the demo are fictional |
 | "Nurses are paid by insurance, as today" | Nursing visits are billed to health/care insurance today; DorfConnect doesn't change that |
 | "Sixteen neighbours", five care services | Demo network in `seed.js` (fictional people and organisations) |
-| €3.99 a month | **Pricing decision / hypothesis** to test. See open decisions below |
+| €3.99 a month per household | Team pricing decision (to validate with families). SOS and 112 are never behind the paywall |
 
 Don't add numbers beyond these without a source; the pitch's verified statistics (9,925 people aged 65+, five open GP seats in Schweinfurt-Süd) can go in a title card if you want them, with the source lines from the pitch page (`public/pitch.html`).
 
@@ -281,6 +281,6 @@ Don't add numbers beyond these without a source; the pitch's verified statistics
 
 ## 10. Open decisions before publishing
 
-- **Price consistency.** This video says **€3.99 a month**. The current pitch script, business case and recorded demo say residents use it for free (municipality licence; €9 family add-on as a hypothesis). Pick one model and align all four. A combination that keeps both stories true: *€3.99 per household per month, often paid by the family; the municipality funds the local network; care is billed to insurance as today.*
+- **Price (decided).** €3.99 per household per month, often paid by the family. The municipality funds the local network (licence), and care stays billed to insurance as today. SOS and 112 are always free. The pitch, business case, app (Family view) and recorded demo use the same model.
 - **Day of the week.** The story uses Dr. Yilmaz (Tuesday video day). If you want the village-hall doctor in the story instead, set it on a Wednesday with Dr. Braun in Schonungen.
 - **Language.** English VO for an international jury; German VO for municipalities and investors in Bavaria.

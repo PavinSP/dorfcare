@@ -57,9 +57,9 @@ export const SCENES = [
   },
   {
     id: 'outro', from: 111, to: 120, screen: 'Closing card',
-    title: 'Free for residents.', subtitle: 'Paid by municipalities, care insurance and GP practices · connecting the nurses, doctors and neighbours who already exist',
+    title: '€3.99 a month per household.', subtitle: 'SOS and 112 always free · care billed to insurance as today · municipalities fund the local network',
     caption: '',
-    vo: 'Free for residents. Paid by municipalities, care insurance and practices. DorfConnect.',
+    vo: 'Three ninety-nine a month per household. Care stays billed to insurance. DorfConnect.',
     steps: ['Closing card fades in'],
   },
 ]
