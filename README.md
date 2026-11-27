@@ -55,6 +55,14 @@ Many residents over 80 have only a landline, so the resident never *needs* the a
 | 🤝 **On behalf** | Community + Volunteer (`src/components/OnBehalfForm.jsx`) | The coordinator logs phone or drop-in requests; a volunteer logs what a neighbour needs. Consent is required, and the request shows "☎️ via landline · logged by Sabine". |
 | 🏠 **In person** | Community + Doctor; [`/hilfe-karte.html`](public/hilfe-karte.html), [`/aushang.html`](public/aushang.html) | Weekly drop-in hour (Wednesday 10–12, Gemeindehaus Schonungen), a printable fridge card ("one number for everything"), and an A4 notice with tear-off strips for the bakery. |
 
+## Village-hall doctor days: the legal route
+
+Open consultation hours in another village are a **branch practice ("Filiale", §24 Abs. 3 Ärzte-ZV)**: the GP practice or MVZ applies, KVB approves before the first patient, the municipality provides the room.
+
+- Each rotation day stores its route (`branch` / `video` / `home-visits`) and status (`not-applied` / `pending` / `approved`). These are demo statuses.
+- Until a branch is approved, the day automatically runs as **video + nurse at home** (`src/lib/rotation.js`), so nothing is booked into a room that isn't allowed yet. Video counts towards the cap of 50% video-only cases per quarter.
+- Doctor tab: room checklist (`ROOM_CHECKS`), "apply" only when the room is ready, the limit of 2 branches per doctor (BO §17 Abs. 2), and a pre-filled application summary with verified population numbers and the follow-up and emergency cover KVB asks for.
+
 ## Relationships between helpers and residents
 
 People prefer familiar faces, so matching learns who belongs together:

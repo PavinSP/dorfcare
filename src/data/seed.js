@@ -6,13 +6,16 @@ export const REGION_CENTER = { lat: 50.035, lng: 10.215 } // between the five mu
 export const VILLAGE_NAME = REGION_NAME // kept for older imports
 export const VILLAGE_CENTER = REGION_CENTER
 
-/** The pilot cluster: five municipalities 4–12 km from Schweinfurt. Coordinates = OSM main-village centres; PLZ verified. */
+/**
+ * The pilot cluster: five municipalities 4–12 km from Schweinfurt. Coordinates = OSM main-village centres; PLZ verified.
+ * pop / age65 / age75: LfStat A1310C, 31 Dec 2025 (verified). kmToSW: straight line to Schweinfurt centre.
+ */
 export const MUNICIPALITIES = {
-  werneck: { name: 'Werneck', plz: '97440', lat: 49.9816, lng: 10.1002 },
-  dittelbrunn: { name: 'Dittelbrunn', plz: '97456', lat: 50.0778, lng: 10.2206 },
-  schonungen: { name: 'Schonungen', plz: '97453', lat: 50.0504, lng: 10.3045 },
-  niederwerrn: { name: 'Niederwerrn', plz: '97464', lat: 50.0611, lng: 10.1821 },
-  gochsheim: { name: 'Gochsheim', plz: '97469', lat: 50.0191, lng: 10.2822 },
+  werneck: { name: 'Werneck', plz: '97440', lat: 49.9816, lng: 10.1002, pop: 10056, age65: 2569, age75: 1114, kmToSW: 11.9 },
+  dittelbrunn: { name: 'Dittelbrunn', plz: '97456', lat: 50.0778, lng: 10.2206, pop: 7460, age65: 1992, age75: 1001, kmToSW: 3.8 },
+  schonungen: { name: 'Schonungen', plz: '97453', lat: 50.0504, lng: 10.3045, pop: 7575, age65: 1962, age75: 899, kmToSW: 5.1 },
+  niederwerrn: { name: 'Niederwerrn', plz: '97464', lat: 50.0611, lng: 10.1821, pop: 8347, age65: 1905, age75: 926, kmToSW: 4.1 },
+  gochsheim: { name: 'Gochsheim', plz: '97469', lat: 50.0191, lng: 10.2822, pop: 6082, age65: 1497, age75: 723, kmToSW: 4.5 },
 }
 export const SCHWEINFURT = { name: 'Schweinfurt', lat: 50.0451, lng: 10.2341 }
 
@@ -60,16 +63,19 @@ export const CARE_ROUTING = [
 ]
 
 /**
- * What a village hall needs before a GP may hold consultation hours there (checked before applying to the KV).
- * Demo checklist; the exact requirements are confirmed with KV Bayerns and the practice's hygiene plan.
+ * What a village hall needs before a practice applies to KVB for a Filiale there (§24 Abs. 3 Ärzte-ZV).
+ * Based on KVB's Filiale form and Präsenzpflicht leaflet; items marked "confirm" still need KVB / Landratsamt.
  */
+/** Bavarian professional code (BO §17 Abs. 2): a doctor may work in at most two further practices (Filialen). */
+export const MAX_FILIALEN_PER_DOCTOR = 2
+
 export const ROOM_CHECKS = [
-  { id: 'room', en: 'Separate lockable room, sound privacy (medical confidentiality)', de: 'Eigener abschließbarer Raum, schallgeschützt (Schweigepflicht)' },
-  { id: 'access', en: 'Step-free access and accessible toilet', de: 'Barrierefreier Zugang und barrierefreies WC' },
-  { id: 'hygiene', en: 'Hygiene plan, hand-wash basin, wipeable surfaces', de: 'Hygieneplan, Handwaschbecken, wischbare Flächen' },
-  { id: 'emergency', en: 'Emergency kit and AED on site', de: 'Notfallkoffer und AED vor Ort' },
-  { id: 'waste', en: 'Medical waste and sharps disposal', de: 'Entsorgung medizinischer Abfälle und Kanülen' },
-  { id: 'it', en: 'Secure internet for practice software / telematics', de: 'Sicheres Internet für Praxissoftware / Telematik' },
+  { id: 'room', en: 'Own lockable consultation room, private conversations possible', de: 'Eigener abschließbarer Behandlungsraum, vertrauliche Gespräche möglich' },
+  { id: 'separate', en: 'Clearly separate practice area with a sign showing the consultation hours', de: 'Klar abgegrenzter Praxisbereich mit Praxisschild und Sprechzeiten' },
+  { id: 'hygiene', en: 'Hygiene plan, hand-wash basin with dispensers, wipeable surfaces (confirm MedHygV with KVB hygiene advice)', de: 'Hygieneplan, Handwaschbecken mit Spendern, wischbare Flächen (MedHygV mit KVB-Hygieneberatung klären)' },
+  { id: 'access', en: 'Step-free access (to confirm with the Landratsamt)', de: 'Barrierefreier Zugang (mit dem Landratsamt klären)' },
+  { id: 'use', en: 'Landratsamt checked the change of use of the room (BayBO)', de: 'Landratsamt hat die Nutzungsänderung geprüft (BayBO)' },
+  { id: 'it', en: 'Secure internet for practice software / telematics; lockable storage', de: 'Sicheres Internet für Praxissoftware / Telematik; abschließbarer Schrank' },
 ]
 
 /** Professional tasks handled by nurses (never offered to volunteers, never rewarded with points). */
@@ -212,19 +218,21 @@ export const initialState = {
   ],
 
   // The doctor comes to the villages: each day a different municipality's Gemeindehaus (or video).
-  // site.route: 'branch' = consultation hours in a village hall (needs KV approval first), 'video', 'home-visits' (no site approval).
+  // site.route: 'branch' = Filiale under §24 Abs. 3 Ärzte-ZV: the PRACTICE/MVZ applies, KVB approves before the first patient.
+  //   'video' (practice needs KVB video approval; ≤50% exclusively-video cases per quarter), 'home-visits' (no site approval).
+  // Each doctor holds at most 2 Filialen (BO §17 Abs. 2) → villages are shared between doctors / an MVZ.
   // site.status: 'not-applied' | 'pending' | 'approved' | 'not-needed'. DEMO statuses — no real application exists.
   rotation: [
     { day: 'Monday', who: 'Dr. Keller (GP, Dittelbrunn)', place: 'werneck', service: 'In person · Gemeindehaus Werneck', serviceDe: 'Vor Ort · Gemeindehaus Werneck', slots: slots(['helmut']),
-      site: { route: 'branch', status: 'pending', checks: ['room', 'access', 'hygiene', 'emergency', 'waste', 'it'] } },
+      site: { route: 'branch', status: 'pending', applicant: 'Hausarztpraxis Dr. Keller (Demo)', doctor: 'keller', checks: ['room', 'separate', 'hygiene', 'access', 'use', 'it'] } },
     { day: 'Tuesday', who: 'Dr. Yilmaz (remote)', place: null, service: 'Video consultation (a nurse can assist at home)', serviceDe: 'Videosprechstunde (Pflege kann vor Ort assistieren)', slots: slots([]),
       site: { route: 'video', status: 'not-needed', checks: [] } },
     { day: 'Wednesday', who: 'Dr. Braun (Schweinfurt)', place: 'schonungen', service: 'In person · Gemeindehaus Schonungen', serviceDe: 'Vor Ort · Gemeindehaus Schonungen', slots: slots(['gertrud', 'helmut']),
-      site: { route: 'branch', status: 'approved', checks: ['room', 'access', 'hygiene', 'emergency', 'waste', 'it'] } },
+      site: { route: 'branch', status: 'approved', applicant: 'Praxis Dr. Braun (Demo), Schweinfurt', doctor: 'braun', checks: ['room', 'separate', 'hygiene', 'access', 'use', 'it'] } },
     { day: 'Thursday', who: 'Mehmet Aydın (NäPA, delegated)', place: null, service: 'Delegated home visits for the GP practice', serviceDe: 'Delegierte Hausbesuche für die Hausarztpraxis', slots: slots([]),
       site: { route: 'home-visits', status: 'not-needed', checks: [] } },
     { day: 'Friday', who: 'Dr. Sommer (Schweinfurt)', place: 'gochsheim', service: 'In person · Gemeindehaus Gochsheim', serviceDe: 'Vor Ort · Gemeindehaus Gochsheim', slots: slots([]),
-      site: { route: 'branch', status: 'not-applied', checks: ['room', 'access', 'it'] } },
+      site: { route: 'branch', status: 'not-applied', applicant: 'MVZ Schweinfurt-Land (Demo)', doctor: 'sommer', checks: ['room', 'access', 'it'] } },
   ],
 
   rewards: [

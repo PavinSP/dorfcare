@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Card } from '../components/ui'
-import { MUNICIPALITIES, NURSE_TASKS, ROOM_CHECKS } from '../data/seed'
+import { MAX_FILIALEN_PER_DOCTOR, MUNICIPALITIES, NURSE_TASKS, ROOM_CHECKS } from '../data/seed'
+import { haversineKm } from '../lib/matching'
 import { dayMode } from '../lib/rotation'
 import { DAY_I18N, useLang } from '../i18n'
 import { actions, useStore } from '../store'
@@ -39,10 +40,16 @@ const T = {
     leave: 'Ausblenden',
     dropTitle: '🏠 Sprechstunde der Dorfkümmerin am selben Vormittag',
     dropBody: 'Die Koordinatorin ({c}) bietet eine offene Sprechstunde an, während Sie Patienten sehen — Bewohner können direkt nach dem Termin eine Heimfahrt, Einkauf oder Besuch organisieren.',
-    sitesTitle: '🏛️ Gemeindehaus-Sprechstunden: Genehmigung & Raum',
-    sitesSub: 'Regelmäßige Sprechstunden in einem anderen Ort brauchen vorher die Genehmigung der KV (Zweigpraxis). Bis dahin läuft der Tag automatisch als Video + Pflege zu Hause — für Patienten entsteht keine Lücke.',
+    sitesTitle: '🏛️ Gemeindehaus-Sprechstunden: Filiale, Genehmigung & Raum',
+    sitesSub: 'Offene Sprechstunden in einem anderen Ort sind eine Filiale (§24 Abs. 3 Ärzte-ZV): Die Praxis oder das MVZ beantragt sie, die KVB genehmigt vorher. Die Gemeinde stellt den Raum. Bis zur Genehmigung läuft der Tag automatisch als Video + Pflege zu Hause — für Patienten entsteht keine Lücke.',
     roomTitle: 'Raum-Checkliste (stellt die Gemeinde)',
-    submit: '📨 Bei der KV beantragen',
+    applicant: 'Antrag stellt',
+    filialen: '{d}: {n} von max. {max} Filialen',
+    filialenOver: '{d}: {n} Filialen — mehr als {max} erlaubt (BO §17). Ort an eine andere Praxis / ein MVZ geben.',
+    videoCap: 'Zählt zur Video-Obergrenze: max. 50 % ausschließlich per Video behandelter Fälle pro Quartal und Praxis.',
+    summary: '📄 Antrags-Zusammenfassung',
+    hideSummary: 'Zusammenfassung ausblenden',
+    submit: '📨 Praxis beantragt Filiale bei der KVB',
     submitHint: 'Erst wenn die Raum-Checkliste vollständig ist.',
     approve: '✅ Genehmigung erhalten (Demo)',
     withdraw: 'Zurückziehen',
@@ -81,10 +88,16 @@ const T = {
     leave: 'Hide',
     dropTitle: '🏠 Drop-in hour shares your morning',
     dropBody: 'The coordinator ({c}) runs a help desk while you see patients — residents can arrange a ride home, shopping or a visit right after their appointment.',
-    sitesTitle: '🏛️ Village-hall consultations: approval & room',
-    sitesSub: 'Regular consultation hours in another village need KV approval first (branch practice). Until then the day automatically runs as video + nurse at home — no gap for patients.',
+    sitesTitle: '🏛️ Village-hall consultations: branch practice, approval & room',
+    sitesSub: 'Open consultation hours in another village are a branch practice ("Filiale", §24(3) Ärzte-ZV): the practice or MVZ applies and KVB approves before the first patient. The municipality provides the room. Until approval the day automatically runs as video + nurse at home — no gap for patients.',
     roomTitle: 'Room checklist (provided by the municipality)',
-    submit: '📨 Apply to the KV',
+    applicant: 'Applicant',
+    filialen: '{d}: {n} of max. {max} branches',
+    filialenOver: '{d}: {n} branches — more than {max} allowed (BO §17). Give this village to another practice / an MVZ.',
+    videoCap: 'Counts towards the video cap: max. 50% of a practice’s cases per quarter treated only by video.',
+    summary: '📄 Application summary',
+    hideSummary: 'Hide summary',
+    submit: '📨 Practice applies to KVB for a branch',
     submitHint: 'Only once the room checklist is complete.',
     approve: '✅ Approval received (demo)',
     withdraw: 'Withdraw',
@@ -222,6 +235,9 @@ const SITE_CHIP = {
 /** Village-hall days: room readiness (municipality) → KV application → approval. Until approved: video + nurse fallback. */
 function SitesCard({ state, t, lang }) {
   const days = state.rotation.map((d, i) => ({ d, i })).filter(({ d }) => d.site?.route === 'branch')
+  const [open, setOpen] = useState(null)
+  // BO §17 Abs. 2: each doctor may hold at most 2 Filialen — count planned branch days per doctor.
+  const perDoctor = days.reduce((acc, { d }) => ({ ...acc, [d.who]: (acc[d.who] ?? 0) + 1 }), {})
   return (
     <Card className="border-2 border-amber-200">
       <h3 className="font-semibold">{t.sitesTitle}</h3>
@@ -236,6 +252,12 @@ function SitesCard({ state, t, lang }) {
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${SITE_CHIP[d.site.status]}`}>{m.statusLabel}</span>
               </div>
               <p className="mt-1 text-xs text-slate-500">{m.mode === 'in-person' ? t.running : m.label}</p>
+              <p className="mt-1 text-xs"><span className="text-slate-500">{t.applicant}:</span> {d.site.applicant}</p>
+              <p className={`mt-1 text-xs ${perDoctor[d.who] > MAX_FILIALEN_PER_DOCTOR ? 'text-red-700' : 'text-green-700'}`}>
+                {perDoctor[d.who] > MAX_FILIALEN_PER_DOCTOR ? '⚠️ ' : '✓ '}
+                {fill(perDoctor[d.who] > MAX_FILIALEN_PER_DOCTOR ? t.filialenOver : t.filialen, { d: d.who.split(' (')[0], n: perDoctor[d.who], max: MAX_FILIALEN_PER_DOCTOR })}
+              </p>
+              {m.mode === 'video-fallback' && <p className="mt-1 text-[11px] text-indigo-700">📹 {t.videoCap}</p>}
               <p className="mt-2 text-xs font-semibold text-slate-500">{t.roomTitle}</p>
               <ul className="mt-1 space-y-1">
                 {ROOM_CHECKS.map((c) => (
@@ -263,13 +285,60 @@ function SitesCard({ state, t, lang }) {
                 {d.site.status === 'approved' && (
                   <button onClick={() => actions.setSiteStatus(i, 'not-applied')} className="rounded-lg px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-300">{t.withdraw}</button>
                 )}
+                <button onClick={() => setOpen(open === d.day ? null : d.day)} className="rounded-lg px-3 py-1.5 text-xs text-teal-700 ring-1 ring-teal-300">
+                  {open === d.day ? t.hideSummary : t.summary}
+                </button>
               </div>
+              {open === d.day && <ApplicationSummary d={d} state={state} lang={lang} />}
             </div>
           )
         })}
       </div>
       <p className="mt-2 text-[11px] text-slate-400">{t.demoNote}</p>
     </Card>
+  )
+}
+
+/**
+ * Pre-filled text for the practice's KVB Filiale application (§24 Abs. 3 Ärzte-ZV). KVB's form asks for hours,
+ * the services offered, why care improves, how the main practice is safeguarded and — for branches open only
+ * 1–2 days a week — how follow-up and emergency care are covered. DorfConnect supplies exactly that last part.
+ */
+function ApplicationSummary({ d, state, lang }) {
+  const muni = MUNICIPALITIES[d.place]
+  const hours = `${d.slots[0].time}–${d.slots.at(-1).time}`
+  // Care services whose service area actually reaches this village.
+  const nurses = state.nurses.filter((n) => haversineKm(n, muni) <= n.serviceAreaKm).map((n) => n.service.replace(' (Demo)', '').split(',')[0])
+  const de = lang === 'de'
+  const rows = de
+    ? [
+        ['Antragsteller', d.site.applicant],
+        ['Ort der Filiale', `Gemeindehaus ${muni.name}, ${muni.plz} ${muni.name} (Raum: Checkliste der Gemeinde)`],
+        ['Sprechzeiten Filiale', `${DAY_I18N.de[d.day]} ${hours} (1 Tag/Woche)`],
+        ['Hauptpraxis', 'Sprechzeiten unverändert; Tätigkeit am Vertragsarztsitz überwiegt (§17 Abs. 1a BMV-Ä)'],
+        ['Leistungen', 'Hausärztliche Grundversorgung — GOP-Liste ergänzt die Praxis'],
+        ['Verbesserung der Versorgung', `${muni.name}: ${muni.age65.toLocaleString('de-DE')} Einwohner ab 65, davon ${muni.age75.toLocaleString('de-DE')} ab 75 (LfStat, 31.12.2025); ca. ${muni.kmToSW} km bis Schweinfurt`],
+        ['Nachsorge zwischen den Sprechtagen', `Delegierte Hausbesuche (NäPA) und Besuche der Pflegedienste (${nurses.join(', ')}) über DorfConnect; assistierte Videosprechstunde`],
+        ['Notfall / außerhalb der Sprechzeit', '112 bei Notfällen; 116117 Bereitschaftsdienst; Hausnotruf-Partner'],
+        ['Fahrten', 'Ehrenamtliche Fahrten / Rufbus zur Hauptpraxis'],
+      ]
+    : [
+        ['Applicant', d.site.applicant],
+        ['Branch location', `Gemeindehaus ${muni.name}, ${muni.plz} ${muni.name} (room: municipality checklist)`],
+        ['Branch hours', `${d.day} ${hours} (1 day/week)`],
+        ['Main practice', 'Hours unchanged; work at the main seat outweighs the branch (§17(1a) BMV-Ä)'],
+        ['Services', 'GP primary care — the practice adds the GOP list'],
+        ['Why care improves', `${muni.name}: ${muni.age65.toLocaleString('en-GB')} residents aged 65+, ${muni.age75.toLocaleString('en-GB')} aged 75+ (LfStat, 31 Dec 2025); about ${muni.kmToSW} km to Schweinfurt`],
+        ['Follow-up between branch days', `Delegated NäPA home visits and visits by care services (${nurses.join(', ')}) via DorfConnect; assisted video consultation`],
+        ['Emergencies / out of hours', '112 for emergencies; 116117 out-of-hours service; alarm-button partner'],
+        ['Transport', 'Volunteer rides / on-demand bus to the main practice'],
+      ]
+  return (
+    <dl className="mt-3 space-y-1 rounded-lg bg-slate-50 p-2 text-[11px]" data-testid={`summary-${d.place}`}>
+      {rows.map(([k, v]) => (
+        <div key={k}><dt className="font-semibold text-slate-600">{k}</dt><dd className="text-slate-700">{v}</dd></div>
+      ))}
+    </dl>
   )
 }
 

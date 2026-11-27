@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, haversineKm, pickNotified, rankWithExpansion } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v8'
+const KEY = 'dorfconnect-state-v9'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -349,8 +349,8 @@ export const actions = {
       d.site.status = status
       const where = d.serviceDe?.split('· ')[1] ?? d.day
       const text = {
-        pending: `📨 Branch-practice application for ${where} submitted to the KV (demo).`,
-        approved: `✅ KV approval for ${where} recorded (demo): in-person consultations can start.`,
+        pending: `📨 ${d.site.applicant} applied to KVB for a Filiale in ${where} (§24 Abs. 3 Ärzte-ZV, demo).`,
+        approved: `✅ KVB approval for the Filiale in ${where} recorded (demo): in-person consultations can start.`,
         'not-applied': `↩️ ${where}: application withdrawn; the day runs as video + nurse at home.`,
       }[status]
       if (text) log(s, text, 'info')
