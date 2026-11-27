@@ -13,6 +13,16 @@ npm run dev        # open http://localhost:5173
 ```
 
 Roles are switched with the tabs at the top, or by URL: `#resident`, `#volunteer`, `#doctor`, `#community`.
+**🇩🇪 DE / 🇬🇧 EN** in the header switches the resident app, Nurse Clara, voice input and the SOS read-out. The language is set per browser tab.
+
+### Nurse Clara (AI voice companion)
+
+- **Without setup:** Clara runs in offline demo mode (rule-based, bilingual, voice through the browser). It works without Wi-Fi or an API key.
+- **Live ElevenLabs voice agent:** follow [docs/elevenlabs-nurse-agent.md](docs/elevenlabs-nurse-agent.md) (about 10 min). It has the system prompt and tool setup. Then:
+  ```bash
+  cp .env.example .env.local   # set VITE_ELEVENLABS_AGENT_ID=agent_...
+  npm run dev
+  ```
 
 **Live demo trick:** open two browser windows side by side (for example `#resident` and `#volunteer`). State is shared through localStorage, so an action in one window shows up instantly in the other. Use **↺ Reset demo** before presenting.
 
@@ -24,7 +34,9 @@ Roles are switched with the tabs at the top, or by URL: `#resident`, `#volunteer
 4. **Volunteer (Anna)**: *Accept*. Only now does Anna see Maria's exact address, phone number and a route on the map. *Mark done* gives +30 points, and the rewards unlock.
 5. **Resident**: *Arzttermin finden*, then book a slot with the rotating doctor. **Doctor** tab: the rota and bookings.
 6. **Resident**: type "Mein Blutdruck ist sehr hoch". It goes to the **doctor call-back queue**, not to volunteers.
-7. **Resident**: type "Ich bin gestürzt, Schmerzen in der Brust". The app detects an emergency and points to SOS. **SOS** shows the emergency card and reads Maria's details aloud in German (simulated 112).
+7. **Resident**: *Mit Schwester Clara plaudern*. Say "Ich bin heute so allein", then "Ja". Clara asks a volunteer to visit. Ask about doubling a tablet: Clara refuses and offers a nurse call-back. Say "Schmerzen in der Brust": the SOS banner appears.
+8. Switch **🇬🇧 EN**: the same flow works in English.
+9. **Resident**: type "Ich bin gestürzt, Schmerzen in der Brust". The app detects an emergency and points to SOS. **SOS** shows the emergency card and reads Maria's details aloud in German (simulated 112).
 
 ## How the map works
 
@@ -49,6 +61,9 @@ src/
   lib/speech.js             Web Speech API: voice input + German read-out
   components/CommunityMap   the live map (privacy rules live here)
   screens/Resident.jsx      Member 2: check-in, voice help, booking, SOS
+  screens/Companion.jsx     Nurse Clara: ElevenLabs agent + offline fallback, client tools
+  lib/companionOffline.js   offline Clara brain (safe replies only)
+  i18n.js                   German / English strings
   screens/Volunteer.jsx     Member 3: availability, accept/complete, trust, rewards
   screens/Doctor.jsx        Member 4: rotation calendar, call-back queue
   screens/Community.jsx     Member 1: coordinator map, check-ins, leaderboard, log

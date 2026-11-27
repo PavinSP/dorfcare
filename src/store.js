@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, rankVolunteers } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v1'
+const KEY = 'dorfconnect-state-v2'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 

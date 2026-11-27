@@ -3,6 +3,7 @@ import Community from './screens/Community'
 import Doctor from './screens/Doctor'
 import Resident from './screens/Resident'
 import Volunteer from './screens/Volunteer'
+import { setLang, useLang } from './i18n'
 import { actions, useStore } from './store'
 
 // Role is kept in the URL hash (#resident, #volunteer…) so each browser window can show a different role.
@@ -18,6 +19,7 @@ const fromHash = () => ROLES.find((r) => `#${r.id}` === window.location.hash)?.i
 export default function App() {
   const [role, setRole] = useState(fromHash)
   const state = useStore()
+  const { lang } = useLang()
   const openCount = state.requests.filter((q) => q.status === 'open').length
 
   useEffect(() => {
@@ -53,6 +55,13 @@ export default function App() {
               </a>
             ))}
           </nav>
+          <div className="flex rounded-lg bg-slate-100 p-1 text-sm">
+            {[['de', '🇩🇪 DE'], ['en', '🇬🇧 EN']].map(([l, label]) => (
+              <button key={l} onClick={() => setLang(l)} className={`rounded-md px-2 py-1 ${lang === l ? 'bg-white font-semibold shadow' : 'text-slate-500'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
           <button onClick={actions.reset} className="rounded-lg px-3 py-2 text-sm text-slate-500 ring-1 ring-slate-200 hover:bg-slate-50">
             ↺ Reset demo
           </button>

@@ -44,18 +44,19 @@ export const initialState = {
       address: 'Hauptstraße 12, 97999 Lindenbach', phone: '+49 151 0000 0012',
       emergencyContact: 'Peter Schneider (son) · +49 170 0000 0099',
       medical: 'Heart failure, type 2 diabetes · Metformin, Ramipril · Allergy: penicillin',
+      medicalDe: 'Herzinsuffizienz, Diabetes Typ 2 · Metformin, Ramipril · Allergie: Penicillin',
       lastCheckIn: null,
     },
     {
       id: 'helmut', name: 'Helmut Bauer', age: 79, ...at(400, 300),
       address: 'Kirchweg 3, 97999 Lindenbach', phone: '+49 151 0000 0003',
-      emergencyContact: 'Erika Bauer (daughter)', medical: 'Hypertension',
+      emergencyContact: 'Erika Bauer (daughter)', medical: 'Hypertension', medicalDe: 'Bluthochdruck',
       lastCheckIn: 'today-ok',
     },
     {
       id: 'gertrud', name: 'Gertrud Klein', age: 86, ...at(-450, 500),
       address: 'Am Bach 7, 97999 Lindenbach', phone: '+49 151 0000 0007',
-      emergencyContact: 'Nachbarin Frau Roth', medical: 'COPD',
+      emergencyContact: 'Nachbarin Frau Roth', medical: 'COPD', medicalDe: 'COPD',
       lastCheckIn: null, // will show as "missed check-in" on the community dashboard
     },
   ],
@@ -67,11 +68,11 @@ export const initialState = {
   ],
 
   rotation: [
-    { day: 'Monday', who: 'Dr. Keller (Village B)', service: 'In-person, Gemeindehaus', slots: slots(['helmut']) },
-    { day: 'Tuesday', who: 'Dr. Yilmaz (remote)', service: 'Video consultation', slots: slots([]) },
-    { day: 'Wednesday', who: 'Dr. Braun (Würzburg)', service: 'In-person, Gemeindehaus', slots: slots(['gertrud', 'helmut']) },
-    { day: 'Thursday', who: 'Nurse Lena Vogt', service: 'Delegated care / home visits', slots: slots([]) },
-    { day: 'Friday', who: 'Dr. Sommer (Village C)', service: 'In-person, Gemeindehaus', slots: slots([]) },
+    { day: 'Monday', who: 'Dr. Keller (Village B)', service: 'In-person, Gemeindehaus', serviceDe: 'Vor Ort, Gemeindehaus', slots: slots(['helmut']) },
+    { day: 'Tuesday', who: 'Dr. Yilmaz (remote)', service: 'Video consultation', serviceDe: 'Videosprechstunde', slots: slots([]) },
+    { day: 'Wednesday', who: 'Dr. Braun (Würzburg)', service: 'In-person, Gemeindehaus', serviceDe: 'Vor Ort, Gemeindehaus', slots: slots(['gertrud', 'helmut']) },
+    { day: 'Thursday', who: 'Nurse Lena Vogt', service: 'Delegated care / home visits', serviceDe: 'Pflege / Hausbesuche', slots: slots([]) },
+    { day: 'Friday', who: 'Dr. Sommer (Village C)', service: 'In-person, Gemeindehaus', serviceDe: 'Vor Ort, Gemeindehaus', slots: slots([]) },
   ],
 
   rewards: [
