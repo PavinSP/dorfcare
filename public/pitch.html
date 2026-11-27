@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DorfConnect Pitch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one script column (~760px) read top to bottom while rehearsing; a sticky timer bar marks the live section. */
+:root {
+  --bg: #f6f8f8; --surface: #ffffff; --fg: #142322; --muted: #5a6b6a; --line: #dbe3e2;
+  --accent: #0f766e; --accent-soft: #e3f2f0; --warn: #b45309; --warn-soft: #fdf1e2; --bad: #b91c1c;
+  --s1: #0f766e; --s2: #4f46e5; --s3: #b45309; --s4: #be185d;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --bad: #f19393;
+  --s1: #4fc2b4; --s2: #a5a1ff; --s3: #f0b264; --s4: #f59ac4; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --bad: #f19393;
+  --s1: #4fc2b4; --s2: #a5a1ff; --s3: #f0b264; --s4: #f59ac4; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 780px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1rem; }
+p { margin: 0; }
+a { color: var(--accent); }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font: 500 0.75rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.muted { color: var(--muted); }
+section { display: grid; gap: 14px; }
+
+.timer { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.clock { font: 700 1.6rem/1 var(--mono); font-variant-numeric: tabular-nums; min-width: 4.5ch; }
+.clock.over { color: var(--bad); }
+.bar { flex: 1 1 200px; height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; display: flex; }
+.bar span { height: 100%; }
+.timer button { font: 600 0.88rem var(--body); border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; background: var(--accent); color: var(--surface); }
+.timer button.ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+#now { font-size: 0.85rem; color: var(--muted); }
+
+.block { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--c); border-radius: 12px; padding: 16px 18px; display: grid; gap: 10px; transition: box-shadow .2s; }
+.block.live { box-shadow: 0 0 0 3px var(--c); }
+.block header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.time { font: 500 0.8rem/1 var(--mono); color: var(--c); }
+.who { font: 600 0.85rem var(--body); color: var(--muted); }
+.say p { font-size: 1.08rem; line-height: 1.65; }
+.say p + p { margin-top: 8px; }
+.cue { font-size: 0.85rem; background: var(--accent-soft); border-radius: 8px; padding: 8px 10px; }
+.cut { font-size: 0.8rem; color: var(--warn); }
+
+ol, ul { margin: 0; padding-left: 1.2em; }
+li { margin: 4px 0; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+details + details { margin-top: 8px; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin-top: 6px; color: var(--fg); }
+.src { font-size: 0.8rem; color: var(--muted); }
+footer { color: var(--muted); font-size: 0.8rem; }
+@media (prefers-reduced-motion: reduce) { .block { transition: none; } }
+</style>
+<style>body{margin:0} .back{font-size:.9rem}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header style="display:grid;gap:10px">
+    <a class="back" href="/">← Back to the DorfConnect demo</a>
+    <span class="eyebrow">8.8.8 Start-a-thon · Problem 08 · 3 min pitch + 2 min jury Q&amp;A</span>
+    <h1>DorfConnect pitch</h1>
+    <p class="muted">Four speakers, one live demo. About 450 spoken words, which is 3:00 at a calm pace. Rehearse once with the timer; if you run over, drop the lines marked "cut if long".</p>
+  </header>
+
+  <div class="timer" role="group" aria-label="Rehearsal timer">
+    <span class="clock" id="clock">0:00</span>
+    <div class="bar" aria-hidden="true">
+      <span style="width:25%;background:var(--s1)"></span><span style="width:33.3%;background:var(--s2)"></span><span style="width:25%;background:var(--s3)"></span><span style="width:16.7%;background:var(--s4)"></span>
+    </div>
+    <button type="button" id="start">Start</button>
+    <button type="button" id="reset" class="ghost">Reset</button>
+    <span id="now">Press Start and read along.</span>
+  </div>
+
+  <section aria-label="Script">
+    <article class="block" id="b1" style="--c:var(--s1)" data-from="0" data-to="45">
+      <header><span class="time">0:00 – 0:45</span><h2>Maria, and the numbers behind her</h2><span class="who">Speaker 1</span></header>
+      <div class="say">
+        <p>Maria is 82 and lives alone in Werneck, twelve kilometres from Schweinfurt. She doesn't drive. When her doctor retires and nobody takes over, a simple check-up means a taxi, or waiting until it becomes an emergency.</p>
+        <p>Maria is fictional. The numbers around her aren't. In five municipalities around Schweinfurt, 9,925 people are over 65. In the GP planning area Schweinfurt-Süd, five GP seats are already empty, and 15 of the 36 GPs are 60 or older. The gap is coming.</p>
+        <p>And more than half of people over 78 lack basic digital skills. So the answer can't be one more app.</p>
+      </div>
+      <p class="src">LfStat, 31 Dec 2025 · KVB Versorgungsatlas Aug 2026 + KVB decision 07.08.2026 · DigitalPakt Alter 2024 (58% of 78+)</p>
+    </article>
+
+    <article class="block" id="b2" style="--c:var(--s2)" data-from="45" data-to="105">
+      <header><span class="time">0:45 – 1:45</span><h2>The solution, live</h2><span class="who">Speaker 2 talks · teammate clicks</span></header>
+      <div class="say">
+        <p>DorfConnect connects the people who are already there. Germany has 15,549 ambulant care services. Every village has neighbours who'd help. What's missing is the coordination.</p>
+        <p>Nine a.m.: Clara, our AI voice, calls Gertrud's landline. She presses 1, and her check-in turns green. No smartphone needed.</p>
+        <p>Maria needs a ride to the doctor. Trusted volunteers within five kilometres get the request. Her address stays hidden until Anna accepts, and because Anna has helped her four times before, she's asked first.</p>
+        <p>Maria's blood pressure is high. Her doctor sends Lena, a nurse from the local care service, and joins by video. On Wednesdays the doctor comes to the Gemeindehaus, as a KVB-approved branch of his practice.</p>
+        <p>Volunteers never do medical work. The app never diagnoses. Emergencies go to 112.</p>
+      </div>
+      <p class="cue">Clicks: ☎️ Landline → "▶ Start the 09:00 call" → press 1 · 🙋 Volunteer → Accept on Maria's ride (map shows the route) · 🩺 Doctor → Send nurse (video) · 👩‍⚕️ Nurse → Accept → Start tele-consult</p>
+      <p class="cut">Cut if long: "On Wednesdays the doctor comes to the Gemeindehaus…"</p>
+      <p class="src">Destatis: 15,549 ambulant care services (2023) · §24 Abs. 3 Ärzte-ZV</p>
+    </article>
+
+    <article class="block" id="b3" style="--c:var(--s3)" data-from="105" data-to="150">
+      <header><span class="time">1:45 – 2:30</span><h2>Who pays, and where the money comes from</h2><span class="who">Speaker 3</span></header>
+      <div class="say">
+        <p>Maria never pays. Today, municipalities, the care insurance and GP practices each pay for one piece of rural care. We connect those payments.</p>
+        <p>Municipalities license DorfConnect. We're testing about 400 euros per village per month. That stays below the 100,000-euro limit, so a mayor can award it without a tender.</p>
+        <p>For people with a care grade, the care insurance pays 131 euros a month for everyday help, billed through a recognised volunteer group. From 2027, home visits by practice assistants are paid outside the GP budget, and we plan those visits. Families can add alerts for nine euros a month.</p>
+        <p>To build it, we'll apply for EXIST or FLÜGGE stipends, the Start-Zuschuss, and an Innovationsfonds project with THWS.</p>
+      </div>
+      <p class="cut">Cut if long: the families sentence.</p>
+      <p class="src">Bavarian direct-award limit €100k (StMI) · §45b SGB XI €131 (BMG 2026) · KBV: GOP 38100/38105 outside budget from Q1 2027 · €400 and €9 are our pricing hypotheses</p>
+    </article>
+
+    <article class="block" id="b4" style="--c:var(--s4)" data-from="150" data-to="180">
+      <header><span class="time">2:30 – 3:00</span><h2>Why it's a company, how we sell, the ask</h2><span class="who">Speaker 4</span></header>
+      <div class="say">
+        <p>That's what makes this a company: we run the local coordinator, vet the volunteers, sign the partner contracts and do the compliance work. Copying our code doesn't copy that.</p>
+        <p>We start with a paid pilot in these five municipalities, with the local Sozialstationen and one GP practice. Mayors listen to mayors, and residents find us through one phone number on the fridge.</p>
+        <p>We're asking for an introduction to a mayor, and a GP practice to pilot with.</p>
+        <p>We can't put a doctor in every village. We can make sure nobody there is left alone with it.</p>
+      </div>
+    </article>
+  </section>
+
+  <section>
+    <span class="eyebrow">Before you go on stage</span>
+    <h2>Demo run sheet</h2>
+    <ol>
+      <li>Press <b>↺ Reset demo</b>, language <b>EN</b> (or DE if pitching in German).</li>
+      <li>Prepare two things in advance so the live part takes under a minute:
+        <ul>
+          <li>As Maria: "I need some help" → "Ride to doctor" → Ask for help.</li>
+          <li>As Maria: "I need some help" → type "My blood pressure is very high and I feel dizzy" → Ask for help.</li>
+        </ul>
+      </li>
+      <li>Open four tabs in order: <b>#landline</b> (Gertrud), <b>#volunteer</b> (Anna), <b>#doctor</b>, <b>#nurse</b> (Lena). Turn the laptop volume up for Clara's voice.</li>
+      <li>Backup: screenshots of each step on a second device, in case the Wi-Fi or projector fails. The app itself works offline except the map tiles.</li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="eyebrow">2 minutes of jury questions</span>
+    <h2>Q&amp;A cheat sheet</h2>
+    <details><summary>Is a doctor in the village hall even legal?</summary><p>Yes, as a branch practice (Filiale, §24 Abs. 3 Ärzte-ZV). The GP practice or an MVZ applies and KVB approves before the first patient; each doctor can hold at most two branches. Until approval the day runs as video plus a nurse at home, so patients don't wait for paperwork.</p></details>
+    <details><summary>Isn't an app that handles health a medical device?</summary><p>We stay outside the medical device rules on purpose: no triage, no diagnosis, no health scores. If someone mentions chest pain, the app only asks "Do you want 112?" and the person decides.</p></details>
+    <details><summary>Schweinfurt isn't officially underserved. Why here?</summary><p>True, coverage is 95.85 to 107.55%. But in Schweinfurt-Süd five GP seats are open and 15 of 36 GPs are 60 or older. We build the network before the gap, not after.</p></details>
+    <details><summary>What if there aren't enough volunteers?</summary><p>That's the main reason these schemes fail, so we plan for it: small tasks, a cap per helper, a paid coordinator, a legal allowance under §45b, and a search radius that widens from 5 to 10 to 15 km. Medical work goes to professionals anyway.</p></details>
+    <details><summary>Why would a GP join?</summary><p>Only medical work reaches the doctor. Rides and errands go to volunteers, vitals and wound care to nurses. Home visits by practice assistants are paid outside the budget from 2027, and Bavaria pays a €10k mobility bonus for mobile practice staff.</p></details>
+    <details><summary>Who are your competitors?</summary><p>DorfFunk (now StadtLand.Funk) is the village app in Bavaria, without health features, so it's a partner. Hausnotruf providers are partners too: their human operators handle alarms and 112. Nobody coordinates volunteers and professional care together.</p></details>
+    <details><summary>What about data protection?</summary><p>A volunteer sees the exact address only after accepting, and only until the task is done. Medical details go only to doctors and nurses, never to family or volunteers. For a pilot: a data-protection impact assessment and an EU host with a C5 attestation.</p></details>
+    <details><summary>Emergencies: does the app call 112?</summary><p>Never automatically; that's forbidden in Germany (§4 NotrufV). The person or a human operator at the alarm-button partner starts the call.</p></details>
+    <details><summary>How big is the market?</summary><p>244 municipalities in Lower Franconia and 1,482 in Bavaria have fewer than 5,000 residents. At our test price that's a ceiling of about €1.2M a year in Lower Franconia and €7.1M in Bavaria from licences alone, before care-insurance, practice and family revenue.</p></details>
+    <details><summary>Is Clara replacing human contact?</summary><p>No. Clara does the 9 a.m. check-in call and keeps people company, always says she's an AI, and gives no medical advice. When someone is lonely, she offers a real volunteer visit.</p></details>
+  </section>
+
+  <footer>Fictional people and organisations in the demo; real municipalities and verified public numbers. Prepared 27 Nov 2026 for the 8.8.8 Start-a-thon (Foundry × genes!s, THWS).</footer>
+</div>
+
+<script>
+(function () {
+  var clock = document.getElementById('clock');
+  var now = document.getElementById('now');
+  var startBtn = document.getElementById('start');
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.block'));
+  var t0 = null, elapsed = 0, tick = null;
+  function fmt(s) { var m = Math.floor(s / 60), r = Math.floor(s % 60); return m + ':' + (r < 10 ? '0' : '') + r; }
+  function render() {
+    var s = elapsed + (t0 ? (Date.now() - t0) / 1000 : 0);
+    clock.textContent = fmt(s);
+    clock.classList.toggle('over', s > 180);
+    var live = null;
+    blocks.forEach(function (b) {
+      var on = s >= +b.dataset.from && s < +b.dataset.to;
+      b.classList.toggle('live', on && !!t0);
+      if (on) live = b;
+    });
+    if (!t0 && s === 0) now.textContent = 'Press Start and read along.';
+    else if (s > 180) now.textContent = 'Over time: stop and take questions.';
+    else if (live) now.textContent = 'Now: ' + live.querySelector('h2').textContent + ' (' + live.querySelector('.who').textContent + ')';
+  }
+  startBtn.addEventListener('click', function () {
+    if (t0) { elapsed += (Date.now() - t0) / 1000; t0 = null; clearInterval(tick); startBtn.textContent = 'Resume'; }
+    else { t0 = Date.now(); tick = setInterval(render, 250); startBtn.textContent = 'Pause'; }
+    render();
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    t0 = null; elapsed = 0; clearInterval(tick); startBtn.textContent = 'Start'; render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
