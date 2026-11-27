@@ -66,9 +66,11 @@ function phoneEventsApi(secret) {
   }
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command, isPreview }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
+    // GitHub Pages serves the site at https://pavinsp.github.io/dorfconnect/ (dev stays at /).
+    base: command === 'build' || isPreview ? '/dorfconnect/' : '/',
     plugins: [react(), tailwindcss(), phoneEventsApi(env.PHONE_WEBHOOK_SECRET)],
     // Let a demo tunnel (cloudflared / ngrok) reach the dev server so ElevenLabs can call /api/phone-events.
     server: { allowedHosts: ['.trycloudflare.com', '.ngrok-free.app', '.ngrok.app'] },

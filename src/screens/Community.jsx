@@ -94,8 +94,8 @@ export default function Community() {
               </p>
               <p className="text-xs text-slate-500">{state.dropIn.note} — residents come for the doctor and can ask for help in person. No smartphone needed.</p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm">
-                <a href="/hilfe-karte.html" target="_blank" rel="noreferrer" className="rounded-lg bg-teal-600 py-2 font-semibold text-white">🖨️ Fridge card</a>
-                <a href="/aushang.html" target="_blank" rel="noreferrer" className="rounded-lg bg-white py-2 font-semibold text-teal-700 ring-1 ring-teal-300">📌 Bakery notice</a>
+                <a href={`${import.meta.env.BASE_URL}hilfe-karte.html`} target="_blank" rel="noreferrer" className="rounded-lg bg-teal-600 py-2 font-semibold text-white">🖨️ Fridge card</a>
+                <a href={`${import.meta.env.BASE_URL}aushang.html`} target="_blank" rel="noreferrer" className="rounded-lg bg-white py-2 font-semibold text-teal-700 ring-1 ring-teal-300">📌 Bakery notice</a>
               </div>
             </Card>
           )}
