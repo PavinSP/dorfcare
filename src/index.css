@@ -17,3 +17,10 @@ body { @apply bg-slate-100 text-slate-900 antialiased; }
   100% { box-shadow: 0 0 0 18px rgb(220 38 38 / 0); }
 }
 .leaflet-container { font: inherit; }
+
+/* Municipality name labels on the regional map */
+.dc-town {
+  font: 600 11px/1.2 Inter, system-ui, sans-serif; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #334155; text-align: center; white-space: nowrap;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+}

@@ -4,6 +4,7 @@ import Doctor from './screens/Doctor'
 import Family from './screens/Family'
 import Hausnotruf from './screens/Hausnotruf'
 import Landline from './screens/Landline'
+import Nurse from './screens/Nurse'
 import Resident from './screens/Resident'
 import Volunteer from './screens/Volunteer'
 import { setLang, useLang } from './i18n'
@@ -16,6 +17,7 @@ const ROLES = [
   { id: 'hausnotruf', label: '🔴 Alarm button', C: Hausnotruf },
   { id: 'family', label: '👪 Family', C: Family },
   { id: 'volunteer', label: '🙋 Volunteer', C: Volunteer },
+  { id: 'nurse', label: '👩‍⚕️ Nurse', C: Nurse },
   { id: 'doctor', label: '🩺 Doctor', C: Doctor },
   { id: 'community', label: '🗺️ Community', C: Community },
 ]

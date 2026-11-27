@@ -1,3 +1,5 @@
+import { MATCH_RADII_KM } from '../data/seed.js'
+
 // Volunteer matching: hard filters first, then a weighted score.
 // Weights are prototype values, not a validated model.
 
@@ -16,7 +18,6 @@ export function bondStrength(bond) {
 
 /** A pairing the resident rated poorly (avg ≤ 2★ over 2+ visits) is not offered again — safeguarding. */
 export const isBlockedPair = (bond) => Boolean(bond && bond.rated >= 2 && bond.starsSum / bond.rated <= 2)
-const MAX_RADIUS_KM = 3
 
 const SKILL_FOR_TYPE = {
   transport: 'driving',
@@ -49,7 +50,7 @@ export function formatDistance(km) {
  * Returns eligible volunteers, best first, each with { km, score, breakdown, bond }.
  * `location` is the resident (lat/lng + optional bonds), so known helpers rank higher.
  */
-export function rankVolunteers(volunteers, location, type, exclude = []) {
+export function rankVolunteers(volunteers, location, type, exclude = [], radiusKm = MATCH_RADII_KM[0]) {
   const skill = SKILL_FOR_TYPE[type] ?? null
   const bonds = location.bonds ?? {}
   return volunteers
@@ -59,7 +60,7 @@ export function rankVolunteers(volunteers, location, type, exclude = []) {
     .map((v) => {
       const km = haversineKm(v, location)
       const breakdown = {
-        proximity: Math.max(0, 1 - km / MAX_RADIUS_KM),
+        proximity: Math.max(0, 1 - km / radiusKm),
         reliability: v.reliability / 100,
         experience: Math.min(v.completed, 20) / 20,
         relationship: bondStrength(bonds[v.id]),
@@ -71,8 +72,17 @@ export function rankVolunteers(volunteers, location, type, exclude = []) {
         WEIGHTS.relationship * breakdown.relationship
       return { ...v, km, score, breakdown, bond: bonds[v.id] ?? null }
     })
-    .filter((v) => v.km <= MAX_RADIUS_KM)
+    .filter((v) => v.km <= radiusKm)
     .sort((a, b) => b.score - a.score)
+}
+
+/** Search 5 km first; widen to 10 km, then 15 km, only when nobody suitable is free nearby. */
+export function rankWithExpansion(volunteers, resident, type, exclude = []) {
+  for (const radiusKm of MATCH_RADII_KM) {
+    const ranked = rankVolunteers(volunteers, resident, type, exclude, radiusKm)
+    if (ranked.length) return { ranked, radiusKm }
+  }
+  return { ranked: [], radiusKm: MATCH_RADII_KM.at(-1) }
 }
 
 /** Top-n to notify — a preferred helper who is eligible is always among them. */

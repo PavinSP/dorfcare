@@ -4,9 +4,9 @@
 
 import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
-import { approximate, pickNotified, rankVolunteers } from './lib/matching'
+import { approximate, haversineKm, pickNotified, rankWithExpansion } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v6'
+const KEY = 'dorfconnect-state-v7'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -42,6 +42,24 @@ export function useStore() {
 }
 
 // ---------------- actions ----------------
+
+/** Offer a visit to the nearest nurse who covers the resident, is accepting and has capacity (skips those who declined). */
+function offerToNextNurse(s, visit) {
+  const r = s.residents.find((x) => x.id === visit.residentId)
+  const candidates = s.nurses
+    .filter((n) => n.accepting && n.booked < n.capacity && !visit.declined.includes(n.id))
+    .map((n) => ({ n, km: haversineKm(n, r) }))
+    .filter(({ n, km }) => km <= n.serviceAreaKm)
+    .sort((a, b) => a.km - b.km)
+  if (candidates.length) {
+    visit.nurseId = candidates[0].n.id
+    visit.status = 'offered'
+    visit.km = Math.round(candidates[0].km * 10) / 10
+  } else {
+    visit.nurseId = null
+    visit.status = 'unassigned'
+  }
+}
 
 const log = (s, text, kind = 'info') => s.log.unshift({ t: Date.now(), text, kind })
 const vol = (s, id) => s.volunteers.find((v) => v.id === id)
@@ -79,14 +97,14 @@ export const actions = {
         log(s, `🩺 ${r.name} asked a medical question${by ? ` (logged by ${by}, via ${via})` : ''} → routed to nurse/doctor queue.`, 'medical')
         return s
       }
-      const ranked = rankVolunteers(s.volunteers, r, type)
+      const { ranked, radiusKm } = rankWithExpansion(s.volunteers, r, type)
       const notified = pickNotified(ranked)
       s.requests.unshift({
         id, residentId, text, type,
         approx: approximate(r, r.id),
         createdAt: Date.now(),
         status: notified.length ? 'open' : 'escalated',
-        notified, declined: [], assignedTo: null, recurring, via, by,
+        notified, declined: [], assignedTo: null, recurring, via, by, radiusKm,
       })
       log(
         s,
@@ -108,7 +126,9 @@ export const actions = {
       q.declined.push(volunteerId)
       log(s, `${vol(s, volunteerId).name.split(' ')[0]} can't help right now (no penalty).`)
       if (q.notified.length === 0) {
-        const next = pickNotified(rankVolunteers(s.volunteers, r, q.type, q.declined))
+        const { ranked, radiusKm } = rankWithExpansion(s.volunteers, r, q.type, q.declined)
+        const next = pickNotified(ranked)
+        q.radiusKm = radiusKm
         q.notified = next
         if (!next.length) { q.status = 'escalated'; log(s, `⚠️ Nobody free for ${r.name} → coordinator alerted.`, 'help') }
         else log(s, `Re-routed ${r.name}'s request to the next best volunteers.`)
@@ -216,6 +236,86 @@ export const actions = {
       a.status = status
       a.steps.push({ t: Date.now(), text: stepText })
       log(s, `📟 Hausnotruf (${res(s, a.residentId).name.split(' ')[0]}): ${stepText}`, status === 'called-112' ? 'sos' : 'info')
+      return s
+    })
+  },
+
+  // ---------------- Professional nursing layer (existing care services, not volunteers) ----------------
+
+  /**
+   * Request a professional nurse visit. Offered to the nearest nurse whose service area covers the resident,
+   * who is accepting and has capacity today. Returns the visit id.
+   * task: key of NURSE_TASKS ('wound' | 'injection' | 'vitals' | 'assessment' | 'telemed')
+   */
+  requestNurseVisit(residentId, { task, text = '', source = 'coordinator', withDoctor = task === 'telemed', by = null, medicalId = null } = {}) {
+    const id = `nv-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+    setState((s) => {
+      const r = res(s, residentId)
+      const visit = { id, residentId, task, text, source, withDoctor, by, nurseId: null, status: 'unassigned', time: null, declined: [], createdAt: Date.now() }
+      s.nurseVisits.unshift(visit)
+      offerToNextNurse(s, visit)
+      if (medicalId) {
+        const m = s.medicalQueue.find((x) => x.id === medicalId)
+        if (m) { m.status = 'nurse'; m.nurseVisitId = id }
+      }
+      const n = s.nurses.find((x) => x.id === visit.nurseId)
+      log(s, n
+        ? `👩‍⚕️ Nurse visit for ${r.name} (${task}) offered to ${n.name}, ${n.service}.`
+        : `⚠️ No nurse with free capacity covers ${r.name} today → coordinator / GP practice informed.`, 'nurse')
+      return s
+    })
+    return id
+  },
+
+  /** The nurse (or her service's dispatcher) accepts or declines an offered visit. */
+  nurseRespond(visitId, accept) {
+    setState((s) => {
+      const v = s.nurseVisits.find((x) => x.id === visitId)
+      if (!v || v.status !== 'offered') return s
+      const n = s.nurses.find((x) => x.id === v.nurseId)
+      const r = res(s, v.residentId)
+      if (accept) {
+        n.booked += 1
+        v.status = 'scheduled'
+        v.time = `${String(Math.min(16, 9 + n.booked)).padStart(2, '0')}:${n.booked % 2 ? '30' : '00'}`
+        log(s, `✅ ${n.name} scheduled ${r.name.split(' ')[0]} today at ${v.time}.`, 'nurse')
+      } else {
+        v.declined.push(n.id)
+        log(s, `${n.name} has no capacity → offered to the next nurse.`, 'nurse')
+        offerToNextNurse(s, v)
+      }
+      return s
+    })
+  },
+
+  /** Assisted tele-consult: nurse at the resident's home, doctor joins by video. */
+  startTeleconsult(visitId) {
+    setState((s) => {
+      const v = s.nurseVisits.find((x) => x.id === visitId)
+      if (!v) return s
+      v.status = 'in-call'
+      log(s, `📹 Tele-consult started for ${res(s, v.residentId).name}: nurse on site, doctor by video.`, 'nurse')
+      return s
+    })
+  },
+
+  completeNurseVisit(visitId, note = '') {
+    setState((s) => {
+      const v = s.nurseVisits.find((x) => x.id === visitId)
+      if (!v) return s
+      v.status = 'done'
+      v.note = note
+      v.doneAt = Date.now()
+      const n = s.nurses.find((x) => x.id === v.nurseId)
+      log(s, `🩺 ${n?.name ?? 'Nurse'} completed the visit for ${res(s, v.residentId).name}${note ? `: ${note}` : ''}.`, 'nurse')
+      return s
+    })
+  },
+
+  setNurseAccepting(nurseId, accepting) {
+    setState((s) => {
+      const n = s.nurses.find((x) => x.id === nurseId)
+      n.accepting = accepting
       return s
     })
   },
