@@ -56,6 +56,7 @@ export default function App() {
             ))}
           </nav>
           <a href="/options.html" className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100">📋 Team options</a>
+          <a href="/business.html" className="rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100">💼 Business case</a>
           <div className="flex rounded-lg bg-slate-100 p-1 text-sm">
             {[['de', '🇩🇪 DE'], ['en', '🇬🇧 EN']].map(([l, label]) => (
               <button key={l} onClick={() => setLang(l)} className={`rounded-md px-2 py-1 ${lang === l ? 'bg-white font-semibold shadow' : 'text-slate-500'}`}>

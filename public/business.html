@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DorfConnect Business Case</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column (~820px); tables and the 2x2 sit in their own containers; same teal brand as the app. */
+:root {
+  --bg: #f6f8f8; --surface: #ffffff; --fg: #142322; --muted: #5a6b6a; --line: #dbe3e2;
+  --accent: #0f766e; --accent-soft: #e3f2f0; --warn: #b45309; --warn-soft: #fdf1e2; --good: #15803d; --good-soft: #e5f4ea; --bad: #b91c1c; --bad-soft: #fdeaea;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --good: #6fd08f; --good-soft: #163322; --bad: #f19393; --bad-soft: #3a1818; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1716; --surface: #16211f; --fg: #e4ecea; --muted: #9db0ad; --line: #2a3a37;
+  --accent: #4fc2b4; --accent-soft: #173431; --warn: #f0b264; --warn-soft: #3a2a14; --good: #6fd08f; --good-soft: #163322; --bad: #f19393; --bad-soft: #3a1818; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.wrap { max-width: 820px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 48px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 2.1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; max-width: 70ch; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font: 500 0.75rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; }
+section { display: grid; gap: 16px; }
+ul, ol { margin: 0; padding-left: 1.2em; }
+li { margin: 4px 0; }
+.muted { color: var(--muted); }
+.hyp { font: 500 0.7rem/1 var(--mono); padding: 3px 6px; border-radius: 4px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
+.unv { color: var(--warn); font-size: 0.8rem; }
+
+.thesis { background: var(--surface); border: 2px solid var(--accent); border-radius: 14px; padding: 20px 22px; display: grid; gap: 10px; }
+.thesis p { font-size: 1.05rem; }
+
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font: 500 0.72rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip { display: inline-block; font: 500 0.72rem/1 var(--mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+.chip.g { background: var(--good-soft); color: var(--good); }
+.chip.y { background: var(--warn-soft); color: var(--warn); }
+.chip.r { background: var(--bad-soft); color: var(--bad); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
+.stat b { font: 700 1.5rem/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 0.82rem; }
+.stat a { font-size: 0.75rem; }
+
+.quad { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px; font-size: 0.86rem; }
+.quad .ax { font: 500 0.7rem/1.2 var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; }
+.quad .ax.top { justify-content: center; }
+.quad .cell { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.quad .cell.us { border: 2px solid var(--accent); background: var(--accent-soft); }
+.quad .cell b { display: block; font-family: var(--display); }
+
+.phases { display: grid; gap: 10px; }
+.phase { display: grid; grid-template-columns: 110px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.phase .when { font: 500 0.78rem/1.3 var(--mono); color: var(--accent); }
+@media (max-width: 520px) { .phase { grid-template-columns: 1fr; gap: 4px; } .quad { grid-template-columns: 1fr; } .quad .ax { display: none; } }
+
+.moats { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.moat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.sources { font-size: 0.8rem; color: var(--muted); columns: 2 280px; column-gap: 24px; }
+.sources li { break-inside: avoid; }
+footer { color: var(--muted); font-size: 0.8rem; }
+</style>
+<style>body{margin:0} .back{font-size:.9rem}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header style="display:grid;gap:12px">
+    <a class="back" href="/">← Back to the DorfConnect demo</a>
+    <span class="eyebrow">Startathon · Problem 08 · business case</span>
+    <h1>DorfConnect business case</h1>
+    <p class="lede">Who pays, who we sell to, how this becomes a company rather than an app, and how well the prototype answers the challenge. Researched 27 Nov 2026; every number links to its source, and our own price guesses are marked <span class="hyp">hypothesis</span>.</p>
+  </header>
+
+  <section>
+    <div class="thesis">
+      <span class="eyebrow">The thesis in one paragraph</span>
+      <p><b>DorfConnect is not a consumer app. It is the care-coordination service a village is missing.</b> Municipalities, GP practices and the care insurance already pay for pieces of rural care: rides, home visits, everyday help, emergency alarms. Nobody coordinates those pieces. We sell the coordination layer (software, a local coordinator and a vetted volunteer network) to the municipality. We earn more from the statutory money that flows through it, and residents use it for free.</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">1 · The challenge</span>
+    <h2>How well we answer "care sooner and closer to home"</h2>
+    <div class="tablebox"><table>
+      <thead><tr><th>Brief</th><th>Prototype today</th><th>Coverage</th><th>To close the gap</th></tr></thead>
+      <tbody>
+        <tr><td>Doctors retire, nobody takes over</td><td>Shared doctor rotation across 3 villages</td><td><span class="chip y">partial</span></td><td>Show the GP's side: home visits by practice staff count towards the new standby payment and are paid outside the budget from 2027</td></tr>
+        <tr><td>Months of waiting</td><td>Slot booking, nurse call-back queue</td><td><span class="chip y">weak</span></td><td>"What do I need?" routing chosen by the person: 112, 116117, nurse call-back, video doctor today, next rotation slot, pharmacy</td></tr>
+        <tr><td>Long drives</td><td>Rotation in the village; nurse + video doctor card</td><td><span class="chip y">partial</span></td><td>Working nurse-at-home tele-consult; e-prescription with volunteer pickup</td></tr>
+        <tr><td>Older people without a car</td><td>Volunteer rides, voice-first app, check-ins</td><td><span class="chip g">strong</span></td><td>Offer Rufbus/Callheinz first, volunteer as fallback</td></tr>
+        <tr><td>Closer to home</td><td>Volunteers, companion, relationships, ratings, SOS</td><td><span class="chip g">strong</span></td><td>Already our differentiator</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted">Overall about 60%. The community half is unusually strong; the medical-access half needs the three fixes above for the jury.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">2 · Problem size</span>
+    <h2>The numbers behind the pitch</h2>
+    <div class="stats">
+      <div class="stat"><b>~11,000</b><span>GP posts unfilled in Germany by 2035 (forecast)</span><a href="https://www.bosch-stiftung.de/sites/default/files/documents/2021-05/Studie_RBS_2021_Pressematerial.pdf">Robert Bosch Stiftung 2021</a></div>
+      <div class="stat"><b>~40%</b><span>of districts underserved or at risk by 2035</span><a href="https://www.bosch-stiftung.de/sites/default/files/documents/2021-05/Studie_RBS_2021_Pressematerial.pdf">same study</a></div>
+      <div class="stat"><b>+35</b><span>full-time GP equivalents in Bavaria since 2022, despite 200+ new GPs</span><a href="https://www.kvb.de/fileadmin/kvb/Ueber-uns/Pressearbeit/Presseinformationen/2025/KVB-PI-251218-Jahrespressekonferenz-2025.pdf">KVB, Dec 2025</a></div>
+      <div class="stat"><b>1,482</b><span>of 2,056 Bavarian municipalities have under 5,000 people (3.42 M residents)</span><a href="https://statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/a1200c_202541.pdf">LfStat 2025</a></div>
+      <div class="stat"><b>244</b><span>of 308 municipalities in Lower Franconia are under 5,000 (516k people)</span><a href="https://statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/a1200c_202541.pdf">LfStat 2025</a></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">3 · Target audience</span>
+    <h2>Users, buyers and payers are different people</h2>
+    <p>That is the main reason this is a business and not an app: the person who benefits is rarely the person who pays.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Role</th><th>Who exactly</th><th>What they get</th><th>Pays?</th></tr></thead>
+      <tbody>
+        <tr><td><b>Residents</b></td><td>75+ living alone without a car in villages under 5,000; also people needing temporary support (after surgery, single parents)</td><td>Check-ins, help, rides, doctor access, company, SOS</td><td>Free</td></tr>
+        <tr><td><b>Adult children far away</b></td><td>40–60, living in a city, worried about a parent</td><td>Peace of mind, check-in status, SOS alerts</td><td>Optional premium</td></tr>
+        <tr><td><b>Volunteers</b></td><td>Fit retirees 60–72, students (THWS), parents, club members</td><td>Recognition, local coupons, allowance under §45b</td><td>No, they are paid a small allowance</td></tr>
+        <tr><td><b>Municipality</b> (main buyer)</td><td>Mayor, senior-affairs officer (Seniorenbeauftragte), Verwaltungsgemeinschaft, Landkreis health region office</td><td>A visible answer to the doctor shortage; data for the senior-policy plan</td><td><b>Yes: licence</b></td></tr>
+        <tr><td><b>GP practice / MVZ</b></td><td>The practice covering the villages, usually short-staffed</td><td>Planned home visits by practice staff, rotation, tele-consults, fewer no-shows</td><td>Yes: module</td></tr>
+        <tr><td><b>Care insurance</b></td><td>Pflegekasse, via the €131/month relief budget</td><td>A recognised everyday-help service in places with none</td><td>Yes: per hour of help</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">4 · Revenue</span>
+    <h2>Who pays, and how much</h2>
+    <div class="tablebox"><table>
+      <thead><tr><th>#</th><th>Stream</th><th>Legal basis / amount</th><th>Our price</th><th>When</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td><b>Municipal licence</b> per village cluster (software + coordinator tools + onboarding)</td><td>Bavarian municipalities can award services directly up to <b>€100,000 net</b> (<a href="https://www.innenministerium.bayern.de/assets/stmi/kub/2024-12-27_info_kommunen__kopie_internet_.pdf">StMI</a>). Benchmark: a citizen app ≈ €12k/yr (<a href="https://kommunal.de/index%2Ephp/digitale-buerger-app-kommunen-praxistest">kommunal.de</a>)</td><td class="num">€400/village/month <span class="hyp">hypothesis</span></td><td>Year 1</td></tr>
+        <tr><td class="num">2</td><td><b>Setup projects</b> co-funded by the state</td><td>KoFöR pays up to 80%, max €150k, e.g. for a mobility service; not running costs; runs until 31 Dec 2026, so renewal must be checked (<a href="https://www.gesetze-bayern.de/Content/Rtf/BayVV_2126_0_G_14221-5?all=False">KoFöR</a>)</td><td class="num">€20–60k one-off <span class="hyp">hypothesis</span></td><td>Year 1</td></tr>
+        <tr><td class="num">3</td><td><b>Everyday help billed to the Pflegekasse</b> via a recognised helper group</td><td>€131/month per person with a care grade (§45b SGB XI); provider recognised under Bavarian AVSG by the Landesamt für Pflege; volunteers max 3 people each (<a href="https://www.bundesgesundheitsministerium.de/fileadmin/Dateien/3_Downloads/P/Pflegeversicherung_Leistungsbeitraege/Uebersicht_Leistungsbetraege_2026.pdf">BMG</a>, <a href="https://stmgp.bayern.de/wp-content/uploads/2024/03/202401_flyer_ehrenamtlicheeinzelperson.pdf">StMGP</a>)</td><td class="num">Coordination fee per billed hour <span class="hyp">hypothesis</span></td><td>Year 1–2, with a partner provider</td></tr>
+        <tr><td class="num">4</td><td><b>Family premium</b>: check-in status, alerts, SOS with a contracted emergency-alarm partner</td><td>Hausnotruf costs €27–40/month; Pflegekasse covers €27 with contracted providers (<a href="https://www.verbraucherzentrale.de/wissen/gesundheit-pflege/pflege-zu-hause/hausnotrufsysteme-erklaert-so-helfen-sie-im-notfall-funktionen-vorteile-kosten-10566">Verbraucherzentrale</a>)</td><td class="num">€9–15/month <span class="hyp">hypothesis</span></td><td>Year 2</td></tr>
+        <tr><td class="num">5</td><td><b>Practice module</b> (home-visit planning, rotation, tele-consult)</td><td>New €10k Mobilitätsprämie for mobile practice staff (<a href="https://www.bayern.de/wp-content/uploads/2026/04/260421-Ministerrat.pdf">Bavarian cabinet, Apr 2026</a>); staff home visits (GOP 38100/38105) paid outside the budget from Q1 2027 (<a href="https://www.kbv.de/praxis/tools-und-services/praxisnachrichten/2026/08-27/epa-verguetung-noch-bis-jahresende-erste-ebm-anpassungen-infolge-des-spargesetzes-beschlossen">KBV</a>)</td><td class="num">€150–300/practice/month <span class="hyp">hypothesis</span></td><td>Year 2</td></tr>
+        <tr><td class="num">6</td><td><b>Innovationsfonds</b> consortium (with THWS + a health insurer)</td><td>€80M/yr for new care models in 2026; up to €75k to develop a full proposal (<a href="https://innovationsfonds.g-ba.de/downloads/media/397/2026-08-10_Ueberblick-fuer-Antragstellende-ueber-Foerderbekanntmachungen-2026-und-Verfahrensarten.pdf">G-BA</a>)</td><td class="num">Grant</td><td>Year 2–3</td></tr>
+        <tr><td class="num">7</td><td><b>Selective contracts</b> with health insurers (§140a SGB V)</td><td>Needs outcome evidence first (from stream 6)</td><td class="num">Per enrolled patient</td><td>Year 3+</td></tr>
+        <tr><td class="num">–</td><td>Digital care app (DiPA)</td><td>Up to €40 + €30/month, but zero apps listed so far (<a href="https://www.bundesgesundheitsministerium.de/fileadmin/Dateien/3_Downloads/Gesetze_und_Verordnungen/GuV/D/1_DiPAV-AendVO_RefE_final.pdf">BMG draft, Jun 2026</a>)</td><td class="num">Not now</td><td>Watch</td></tr>
+      </tbody>
+    </table></div>
+    <h3>What one village cluster could look like <span class="hyp">hypothesis</span></h3>
+    <p>A Verwaltungsgemeinschaft of 3 villages: licence 3 × €400 × 12 = <b>€14,400/yr</b>, well under the €100k direct-award limit. A pilot with 10 villages in one Landkreis stays near €48k/yr. If every small municipality in Lower Franconia took the licence, that is 244 × €4,800 ≈ <b>€1.2M/yr</b>; across Bavaria, 1,482 × €4,800 ≈ <b>€7.1M/yr</b>, before care-insurance, family and practice revenue. These are ceilings to sanity-check the model, not forecasts.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">5 · Competition</span>
+    <h2>Nobody runs the coordination layer</h2>
+    <div class="quad" role="table" aria-label="Positioning: community vs professional care, consumer vs municipal or payer">
+      <span></span><span class="ax top">Consumer app</span><span class="ax top">Municipality / payer</span>
+      <span class="ax">Community</span>
+      <div class="cell"><b>nebenan.de</b>Neighbour network; Burda-owned, monetises poorly</div>
+      <div class="cell"><b>DorfFunk → StadtLand.Funk</b>Village app, 300k+ users; now Smartes Land GmbH, co-owned by Versicherungskammer Bayern. No health features. Partner, not rival.</div>
+      <span class="ax">Professional</span>
+      <div class="cell"><b>TeleClinic, Pflegix, ElliQ</b>Kry left Germany in 2022; Careship went insolvent in 2021; Pflegix bills §45b</div>
+      <div class="cell"><b>Medibus, Gesundheitskiosk, Hausnotruf</b>Medibus ended 2024; kiosks lost insurer funding</div>
+    </div>
+    <div class="cell" style="background:var(--accent-soft);border:2px solid var(--accent);border-radius:12px;padding:12px 14px"><b>DorfConnect sits across the middle line:</b> community volunteers feeding professional rural care, paid by the municipality and the care insurance together. The competitor scan found no one doing that, though that absence is itself unverified.</div>
+    <p class="muted">Sources: <a href="https://www.iese.fraunhofer.de/en/media/press/pm_2025_07_10_betreibergesellschaft.html">Fraunhofer IESE</a>, <a href="https://www.aerzteblatt.de/nachrichten/138522/Telemedizin-Kry-zieht-sich-aus-Deutschland-zurueck">Ärzteblatt (Kry)</a>, <a href="https://www.deutsche-startups.de/2021/12/08/careship-exit-insolvenz/">deutsche-startups (Careship)</a>, <a href="https://www.kvhessen.de/medibus-1">KV Hessen (Medibus)</a>, <a href="https://www.aerztezeitung.de/Nachrichten/Gesundheitskiosk-Ersatzkassen-ziehen-sich-aus-Finanzierung-zurueck-432708.html">Ärzte Zeitung (kiosk)</a>.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">6 · Why a startup</span>
+    <h2>Why this is a company, not an app</h2>
+    <div class="moats">
+      <div class="moat"><h3>Operations, not only code</h3><p>Each village needs a coordinator, vetted volunteers and partner contracts. That local work is the product and is hard to copy.</p></div>
+      <div class="moat"><h3>Village network effects</h3><p>More volunteers mean faster help; lasting volunteer–resident relationships and trust scores build up per village.</p></div>
+      <div class="moat"><h3>Several payers</h3><p>Municipal licence plus statutory care money plus families plus practices. Not dependent on one grant; Medibus and the kiosks show why that matters.</p></div>
+      <div class="moat"><h3>Compliance as a moat</h3><p>AVSG recognition, C5-attested hosting, DPIA, an intended purpose outside the medical-device rules, insurance. Slow for a newcomer to copy.</p></div>
+      <div class="moat"><h3>Integration hub</h3><p>Connect what exists (StadtLand.Funk, Hausnotruf, Rufbus/Callheinz, practice software, e-prescriptions) instead of rebuilding it.</p></div>
+      <div class="moat"><h3>Outcome data</h3><p>Check-ins kept, rides delivered, time to appointment, loneliness scores. That evidence opens Innovationsfonds money and insurer contracts.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">7 · Go-to-market</span>
+    <h2>From hackathon to paid pilot</h2>
+    <div class="phases">
+      <div class="phase"><span class="when">Next 90 days</span><div><b>Validate.</b> 15+ interviews: mayors and senior-affairs officers in Landkreis Würzburg, 3 GP practices, a home-care service, families. Goal: one letter of intent. Apply for FLÜGGE or EXIST via the THWS founder office; ask genes!s about the Startbahn27 accelerator route.</div></div>
+      <div class="phase"><span class="when">2027</span><div><b>Paid pilot in one Verwaltungsgemeinschaft</b> (3–5 villages), direct award under €100k. Partners: one GP practice, one home-care provider, one recognised helper-group carrier (e.g. a local welfare organisation), one Hausnotruf provider. Measure: check-in adherence, rides delivered, days to appointment, volunteer retention, loneliness (3-item UCLA scale).</div></div>
+      <div class="phase"><span class="when">2028</span><div><b>10–20 municipalities in Lower Franconia.</b> Innovationsfonds consortium with THWS and an insurer. Integration or channel deal with Smartes Land (StadtLand.Funk).</div></div>
+      <div class="phase"><span class="when">2029+</span><div><b>Bavaria, then other states</b>, using the pilot evidence for selective insurer contracts.</div></div>
+    </div>
+    <h3>How we sell and market</h3>
+    <ul>
+      <li><b>Sales to municipalities is personal:</b> mayors talk to mayors. Win one respected village, film it, and present at district mayors' meetings and Gemeindetag events.</li>
+      <li><b>Fit their existing plans:</b> Bavarian districts write senior-policy plans (seniorenpolitisches Gesamtkonzept). Position DorfConnect as a ready-made measure for them <span class="unv">(legal basis to verify)</span>.</li>
+      <li><b>Recruit volunteers where they already are:</b> clubs, parishes, fire brigades, schools, THWS service-learning.</li>
+      <li><b>Families:</b> local press (Main-Post), and messages to adult children ("Know Mum is fine every morning").</li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="eyebrow">8 · Must-dos and risks</span>
+    <h2>Before a paid pilot</h2>
+    <ol>
+      <li><b>Intended purpose: coordination and wellbeing, not medical.</b> No triage, no scoring of anyone's health. Red-flag words only ask "Do you want 112?" (now built). Get a written opinion on whether the medical-device rules apply (<a href="https://health.ec.europa.eu/latest-updates/update-mdcg-2019-11-rev1-qualification-and-classification-software-regulation-eu-2017745-and-2025-06-17_en">MDCG 2019-11 Rev.1</a>).</li>
+      <li><b>Data protection:</b> explicit consent for health data, separate consent for location, a DPIA, and an EU host with a C5 attestation (<a href="https://www.gesetze-im-internet.de/sgb_5/__393.html">§393 SGB V</a>).</li>
+      <li><b>Emergency calls:</b> a person always starts the 112 call, either the resident or a Hausnotruf centre; automatic calls are not allowed (<a href="https://www.gesetze-im-internet.de/notrufv/__4.html">§4 NotrufV</a>).</li>
+      <li><b>Volunteers:</b> operator liability insurance, cover for drivers, ID check, certificate of good conduct, training, code of conduct (<a href="https://www.ehrenamt.bayern.de/imperia/md/images/stmas/lbe_2023/flyer_ehrenamtsversicherung.pdf">Ehrenamtsversicherung</a> applies only after other cover).</li>
+      <li><b>AI companion:</b> Clara always says she is an AI (EU AI Act Art. 50 transparency, in force since Aug 2026) and never uses manipulative engagement.</li>
+    </ol>
+    <h3>Biggest risks</h3>
+    <ul>
+      <li><b>Too few volunteers.</b> Small tasks, caps per helper, a paid coordinator, and §45b allowances.</li>
+      <li><b>Slow, small municipal budgets.</b> Stay under the direct-award limit; co-fund setup with KoFöR.</li>
+      <li><b>Grant dependency.</b> Medibus and the kiosks ended with their funding; stack several payers from day one.</li>
+      <li><b>Feature creep into medicine.</b> Keep doctors and nurses in charge of anything clinical; we provide the logistics.</li>
+      <li><b>Incumbent adds health.</b> Smartes Land could add similar features; partner early.</li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="eyebrow">9 · Open questions</span>
+    <h2>Ask the organisers today</h2>
+    <ul>
+      <li>The judging criteria and their weights, and who sits on the jury. No public Startathon page exists; genes!s is THWS's entrepreneurship-teaching project, so business viability likely weighs heavily <span class="unv">(unverified)</span>.</li>
+      <li>Who or what "Foundry" is, and who set Problem 08.</li>
+      <li>Follow-up support for winning teams. genes!s events have fed into the Startbahn27 accelerator before (<a href="https://www.thws.de/en/search-and-find/media/press-archives/thema/campus-startup-day-night-gruendungsbegeisterte-lassen-im-neuen-t3-business-terminal-ihre-ideen-fli/">THWS</a>).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Funding for the founders</h2>
+    <ul>
+      <li><b>EXIST stipend:</b> €2,500/month for graduates, up to €30k for materials (<a href="https://www.thws.de/forschung/gruendung/foerderung-und-stipendien/exist/">THWS</a>)</li>
+      <li><b>FLÜGGE (Bavaria):</b> up to 12 months' stipend plus university rooms (<a href="https://www.thws.de/forschung/gruendung/foerderung-und-stipendien/fluegge/">THWS</a>)</li>
+      <li><b>Start?Zuschuss!:</b> 50% of costs up to €36k for young digital startups (<a href="https://www.gruenderland.bayern/en/support-for-your-idea/translate-to-english-startzuschuss">Gründerland Bayern</a>)</li>
+      <li><b>ZDI Mainfranken</b> incubator in Würzburg; <b>BayStartUP</b> business plan competition (<a href="https://www.bayern-innovativ.de/en/profiles/zdi-mainfranken/">ZDI</a>, <a href="https://www.baystartup.de/en/startupdate/the-nominees-in-the-northern-bavaria-2026-business-plan-competition-phase-2">BayStartUP</a>)</li>
+    </ul>
+  </section>
+
+  <footer>Research compiled 27 Nov 2026 by three research passes over public sources linked above. Prices marked "hypothesis" are our starting assumptions to test in interviews, not market data. Not legal advice.</footer>
+</div>
+</body>
+</html>
