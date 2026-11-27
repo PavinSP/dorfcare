@@ -55,6 +55,10 @@ Many residents over 80 have only a landline, so the resident never *needs* the a
 | 🤝 **On behalf** | Community + Volunteer (`src/components/OnBehalfForm.jsx`) | The coordinator logs phone or drop-in requests; a volunteer logs what a neighbour needs. Consent is required, and the request shows "☎️ via landline · logged by Sabine". |
 | 🏠 **In person** | Community + Doctor; [`/hilfe-karte.html`](public/hilfe-karte.html), [`/aushang.html`](public/aushang.html) | Weekly drop-in hour (Wednesday 10–12, Gemeindehaus Schonungen), a printable fridge card ("one number for everything"), and an A4 notice with tear-off strips for the bakery. |
 
+## 2-minute animation script
+
+[docs/animation-script.md](docs/animation-script.md): "Maria's morning", 18 shots from the migraine at 6:40 to the hospital in Schweinfurt, with Clara, volunteers, a nurse, a doctor by video, the rotating doctors, who benefits and the price. Every screen is mapped to the real component and label in this repo.
+
 ## 2-minute demo video
 
 `scripts/demo-storyboard.mjs` defines 9 scenes (screen, clicks, caption, voiceover). `npm run record:demo` (with `npm run dev` running) plays them in the real app with a visible cursor and captions, adds narration (macOS voices) and writes `../video/dorfconnect-demo.mp4`, `.srt` subtitles and a silent `.webm` for your own voiceover. First time only: `npx playwright-core install ffmpeg`. Use `--no-voice` to skip the narration.
