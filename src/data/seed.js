@@ -59,6 +59,19 @@ export const CARE_ROUTING = [
   { task: 'Life-threatening emergency', taskDe: 'Lebensbedrohlicher Notfall', who: '112' },
 ]
 
+/**
+ * What a village hall needs before a GP may hold consultation hours there (checked before applying to the KV).
+ * Demo checklist; the exact requirements are confirmed with KV Bayerns and the practice's hygiene plan.
+ */
+export const ROOM_CHECKS = [
+  { id: 'room', en: 'Separate lockable room, sound privacy (medical confidentiality)', de: 'Eigener abschließbarer Raum, schallgeschützt (Schweigepflicht)' },
+  { id: 'access', en: 'Step-free access and accessible toilet', de: 'Barrierefreier Zugang und barrierefreies WC' },
+  { id: 'hygiene', en: 'Hygiene plan, hand-wash basin, wipeable surfaces', de: 'Hygieneplan, Handwaschbecken, wischbare Flächen' },
+  { id: 'emergency', en: 'Emergency kit and AED on site', de: 'Notfallkoffer und AED vor Ort' },
+  { id: 'waste', en: 'Medical waste and sharps disposal', de: 'Entsorgung medizinischer Abfälle und Kanülen' },
+  { id: 'it', en: 'Secure internet for practice software / telematics', de: 'Sicheres Internet für Praxissoftware / Telematik' },
+]
+
 /** Professional tasks handled by nurses (never offered to volunteers, never rewarded with points). */
 export const NURSE_TASKS = {
   wound: { en: 'Wound dressing', de: 'Verbandswechsel' },
@@ -199,12 +212,19 @@ export const initialState = {
   ],
 
   // The doctor comes to the villages: each day a different municipality's Gemeindehaus (or video).
+  // site.route: 'branch' = consultation hours in a village hall (needs KV approval first), 'video', 'home-visits' (no site approval).
+  // site.status: 'not-applied' | 'pending' | 'approved' | 'not-needed'. DEMO statuses — no real application exists.
   rotation: [
-    { day: 'Monday', who: 'Dr. Keller (GP, Dittelbrunn)', place: 'werneck', service: 'In person · Gemeindehaus Werneck', serviceDe: 'Vor Ort · Gemeindehaus Werneck', slots: slots(['helmut']) },
-    { day: 'Tuesday', who: 'Dr. Yilmaz (remote)', place: null, service: 'Video consultation (a nurse can assist at home)', serviceDe: 'Videosprechstunde (Pflege kann vor Ort assistieren)', slots: slots([]) },
-    { day: 'Wednesday', who: 'Dr. Braun (Schweinfurt)', place: 'schonungen', service: 'In person · Gemeindehaus Schonungen', serviceDe: 'Vor Ort · Gemeindehaus Schonungen', slots: slots(['gertrud', 'helmut']) },
-    { day: 'Thursday', who: 'Mehmet Aydın (NäPA, delegated)', place: null, service: 'Delegated home visits for the GP practice', serviceDe: 'Delegierte Hausbesuche für die Hausarztpraxis', slots: slots([]) },
-    { day: 'Friday', who: 'Dr. Sommer (Schweinfurt)', place: 'gochsheim', service: 'In person · Gemeindehaus Gochsheim', serviceDe: 'Vor Ort · Gemeindehaus Gochsheim', slots: slots([]) },
+    { day: 'Monday', who: 'Dr. Keller (GP, Dittelbrunn)', place: 'werneck', service: 'In person · Gemeindehaus Werneck', serviceDe: 'Vor Ort · Gemeindehaus Werneck', slots: slots(['helmut']),
+      site: { route: 'branch', status: 'pending', checks: ['room', 'access', 'hygiene', 'emergency', 'waste', 'it'] } },
+    { day: 'Tuesday', who: 'Dr. Yilmaz (remote)', place: null, service: 'Video consultation (a nurse can assist at home)', serviceDe: 'Videosprechstunde (Pflege kann vor Ort assistieren)', slots: slots([]),
+      site: { route: 'video', status: 'not-needed', checks: [] } },
+    { day: 'Wednesday', who: 'Dr. Braun (Schweinfurt)', place: 'schonungen', service: 'In person · Gemeindehaus Schonungen', serviceDe: 'Vor Ort · Gemeindehaus Schonungen', slots: slots(['gertrud', 'helmut']),
+      site: { route: 'branch', status: 'approved', checks: ['room', 'access', 'hygiene', 'emergency', 'waste', 'it'] } },
+    { day: 'Thursday', who: 'Mehmet Aydın (NäPA, delegated)', place: null, service: 'Delegated home visits for the GP practice', serviceDe: 'Delegierte Hausbesuche für die Hausarztpraxis', slots: slots([]),
+      site: { route: 'home-visits', status: 'not-needed', checks: [] } },
+    { day: 'Friday', who: 'Dr. Sommer (Schweinfurt)', place: 'gochsheim', service: 'In person · Gemeindehaus Gochsheim', serviceDe: 'Vor Ort · Gemeindehaus Gochsheim', slots: slots([]),
+      site: { route: 'branch', status: 'not-applied', checks: ['room', 'access', 'it'] } },
   ],
 
   rewards: [

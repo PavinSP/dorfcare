@@ -3,6 +3,7 @@ import CommunityMap from '../components/CommunityMap'
 import { MUNICIPALITIES, REGION_NAME } from '../data/seed'
 import { DAY_I18N, TYPE_LABEL_I18N, useLang } from '../i18n'
 import { classifyRequest, formatDistance, haversineKm } from '../lib/matching'
+import { dayMode } from '../lib/rotation'
 import { canListen, listen, speak, stopSpeaking } from '../lib/speech'
 import { actions, useStore } from '../store'
 import Companion from './Companion'
@@ -217,7 +218,8 @@ function Doctor({ me, state, go }) {
         return (
           <div key={d.day} className="rounded-2xl border border-slate-200 p-4">
             <p className="font-semibold">{DAY_I18N[lang][d.day] ?? d.day} · {d.who}</p>
-            <p className="text-sm text-slate-500">{lang === 'de' ? d.serviceDe ?? d.service : d.service}</p>
+            <p className="text-sm font-medium text-teal-800">{dayMode(d, lang).label}</p>
+            {dayMode(d, lang).note && <p className="text-xs text-slate-500">{dayMode(d, lang).note}</p>}
             <div className="mt-2 flex flex-wrap gap-2">
               {free.length === 0 && <span className="text-sm text-slate-400">{t('fullyBooked')}</span>}
               {free.slice(0, 4).map((s) => (

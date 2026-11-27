@@ -6,7 +6,7 @@ import { useSyncExternalStore } from 'react'
 import { initialState, POINTS_FOR_TYPE } from './data/seed'
 import { approximate, haversineKm, pickNotified, rankWithExpansion } from './lib/matching'
 
-const KEY = 'dorfconnect-state-v7'
+const KEY = 'dorfconnect-state-v8'
 const listeners = new Set()
 const fresh = () => structuredClone(initialState)
 
@@ -327,6 +327,33 @@ export const actions = {
     setState((s) => {
       const n = s.nurses.find((x) => x.id === nurseId)
       n.accepting = accepting
+      return s
+    })
+  },
+
+  // ---------------- Village-hall consultation sites (legal route + room readiness) ----------------
+
+  /** Tick / untick a room-readiness item for a village-hall day. */
+  toggleRoomCheck(dayIndex, checkId) {
+    setState((s) => {
+      const site = s.rotation[dayIndex].site
+      site.checks = site.checks.includes(checkId) ? site.checks.filter((c) => c !== checkId) : [...site.checks, checkId]
+      return s
+    })
+  },
+
+  /** Move a village-hall day through the approval steps: 'not-applied' → 'pending' (submitted to KV) → 'approved'. */
+  setSiteStatus(dayIndex, status) {
+    setState((s) => {
+      const d = s.rotation[dayIndex]
+      d.site.status = status
+      const where = d.serviceDe?.split('· ')[1] ?? d.day
+      const text = {
+        pending: `📨 Branch-practice application for ${where} submitted to the KV (demo).`,
+        approved: `✅ KV approval for ${where} recorded (demo): in-person consultations can start.`,
+        'not-applied': `↩️ ${where}: application withdrawn; the day runs as video + nurse at home.`,
+      }[status]
+      if (text) log(s, text, 'info')
       return s
     })
   },

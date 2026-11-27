@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Card } from '../components/ui'
-import { MUNICIPALITIES, NURSE_TASKS } from '../data/seed'
+import { MUNICIPALITIES, NURSE_TASKS, ROOM_CHECKS } from '../data/seed'
+import { dayMode } from '../lib/rotation'
 import { DAY_I18N, useLang } from '../i18n'
 import { actions, useStore } from '../store'
 import { TeleconsultPanel } from './Nurse'
@@ -38,6 +39,15 @@ const T = {
     leave: 'Ausblenden',
     dropTitle: '🏠 Sprechstunde der Dorfkümmerin am selben Vormittag',
     dropBody: 'Die Koordinatorin ({c}) bietet eine offene Sprechstunde an, während Sie Patienten sehen — Bewohner können direkt nach dem Termin eine Heimfahrt, Einkauf oder Besuch organisieren.',
+    sitesTitle: '🏛️ Gemeindehaus-Sprechstunden: Genehmigung & Raum',
+    sitesSub: 'Regelmäßige Sprechstunden in einem anderen Ort brauchen vorher die Genehmigung der KV (Zweigpraxis). Bis dahin läuft der Tag automatisch als Video + Pflege zu Hause — für Patienten entsteht keine Lücke.',
+    roomTitle: 'Raum-Checkliste (stellt die Gemeinde)',
+    submit: '📨 Bei der KV beantragen',
+    submitHint: 'Erst wenn die Raum-Checkliste vollständig ist.',
+    approve: '✅ Genehmigung erhalten (Demo)',
+    withdraw: 'Zurückziehen',
+    running: 'Sprechstunde vor Ort läuft.',
+    demoNote: 'Demo-Status · es existiert kein echter Antrag.',
   },
   en: {
     kSlots: 'Slots booked this week',
@@ -71,6 +81,15 @@ const T = {
     leave: 'Hide',
     dropTitle: '🏠 Drop-in hour shares your morning',
     dropBody: 'The coordinator ({c}) runs a help desk while you see patients — residents can arrange a ride home, shopping or a visit right after their appointment.',
+    sitesTitle: '🏛️ Village-hall consultations: approval & room',
+    sitesSub: 'Regular consultation hours in another village need KV approval first (branch practice). Until then the day automatically runs as video + nurse at home — no gap for patients.',
+    roomTitle: 'Room checklist (provided by the municipality)',
+    submit: '📨 Apply to the KV',
+    submitHint: 'Only once the room checklist is complete.',
+    approve: '✅ Approval received (demo)',
+    withdraw: 'Withdraw',
+    running: 'In-person consultations running.',
+    demoNote: 'Demo status · no real application exists.',
   },
 }
 
@@ -125,13 +144,13 @@ export default function Doctor() {
             <p className="text-sm text-slate-500">{t.rotSub}</p>
             <div className="mt-4 grid gap-3 md:grid-cols-5">
               {state.rotation.map((d) => {
-                const place = d.place ? `📍 ${MUNICIPALITIES[d.place]?.name ?? d.place}` : d.who.includes('NäPA') ? t.home : t.video
+                const m = dayMode(d, lang)
                 return (
                   <div key={d.day} className="rounded-xl border border-slate-200 p-3">
                     <p className="font-semibold">{lang === 'de' ? DAY_I18N.de[d.day] ?? d.day : d.day}</p>
-                    <p className="text-sm font-semibold text-teal-700">{place}</p>
+                    <p className={`text-sm font-semibold ${m.mode === 'video-fallback' ? 'text-indigo-700' : 'text-teal-700'}`}>{m.label}</p>
                     <p className="text-sm text-blue-700">{d.who}</p>
-                    <p className="mb-2 text-xs text-slate-500">{lang === 'de' ? d.serviceDe ?? d.service : d.service}</p>
+                    <p className="mb-2 text-xs text-slate-500">{m.note || m.statusLabel}</p>
                     {d.slots.map((s) => (
                       <div key={s.time} className={`mb-1 rounded-md px-2 py-1 text-xs ${s.bookedBy ? 'bg-blue-100 text-blue-900' : 'bg-slate-50 text-slate-400'}`}>
                         {s.time} · {s.bookedBy ? name(s.bookedBy) : t.free}
@@ -142,6 +161,8 @@ export default function Doctor() {
               })}
             </div>
           </Card>
+
+          <SitesCard state={state} t={t} lang={lang} />
 
           <Card className="border-2 border-indigo-200">
             <h3 className="font-semibold">{t.tele}</h3>
@@ -189,6 +210,66 @@ export default function Doctor() {
         </div>
       </div>
     </div>
+  )
+}
+
+const SITE_CHIP = {
+  'not-applied': 'bg-slate-100 text-slate-600',
+  pending: 'bg-amber-100 text-amber-900',
+  approved: 'bg-green-100 text-green-800',
+}
+
+/** Village-hall days: room readiness (municipality) → KV application → approval. Until approved: video + nurse fallback. */
+function SitesCard({ state, t, lang }) {
+  const days = state.rotation.map((d, i) => ({ d, i })).filter(({ d }) => d.site?.route === 'branch')
+  return (
+    <Card className="border-2 border-amber-200">
+      <h3 className="font-semibold">{t.sitesTitle}</h3>
+      <p className="text-xs text-slate-500">{t.sitesSub}</p>
+      <div className="mt-3 grid gap-3 md:grid-cols-3">
+        {days.map(({ d, i }) => {
+          const m = dayMode(d, lang)
+          return (
+            <div key={d.day} className="rounded-xl border border-slate-200 p-3 text-sm" data-testid={`site-${d.place}`}>
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-semibold">{MUNICIPALITIES[d.place]?.name} · {lang === 'de' ? DAY_I18N.de[d.day] : d.day}</p>
+                <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${SITE_CHIP[d.site.status]}`}>{m.statusLabel}</span>
+              </div>
+              <p className="mt-1 text-xs text-slate-500">{m.mode === 'in-person' ? t.running : m.label}</p>
+              <p className="mt-2 text-xs font-semibold text-slate-500">{t.roomTitle}</p>
+              <ul className="mt-1 space-y-1">
+                {ROOM_CHECKS.map((c) => (
+                  <li key={c.id}>
+                    <label className="flex items-start gap-2 text-xs">
+                      <input type="checkbox" className="mt-0.5" checked={d.site.checks.includes(c.id)} disabled={d.site.status !== 'not-applied'} onChange={() => actions.toggleRoomCheck(i, c.id)} />
+                      <span>{c[lang] ?? c.en}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {d.site.status === 'not-applied' && (
+                  <>
+                    <button disabled={!m.roomReady} onClick={() => actions.setSiteStatus(i, 'pending')} className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">{t.submit}</button>
+                    {!m.roomReady && <p className="w-full text-[11px] text-slate-400">{t.submitHint}</p>}
+                  </>
+                )}
+                {d.site.status === 'pending' && (
+                  <>
+                    <button onClick={() => actions.setSiteStatus(i, 'approved')} className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white">{t.approve}</button>
+                    <button onClick={() => actions.setSiteStatus(i, 'not-applied')} className="rounded-lg px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-300">{t.withdraw}</button>
+                  </>
+                )}
+                {d.site.status === 'approved' && (
+                  <button onClick={() => actions.setSiteStatus(i, 'not-applied')} className="rounded-lg px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-300">{t.withdraw}</button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <p className="mt-2 text-[11px] text-slate-400">{t.demoNote}</p>
+    </Card>
   )
 }
 

@@ -3,6 +3,7 @@ import { CHANNELS, MUNICIPALITIES, REGION_NAME } from '../data/seed'
 import { DAY_I18N, TYPE_LABEL_I18N, useLang } from '../i18n'
 import { classifyRequest } from '../lib/matching'
 import { actions, useStore } from '../store'
+import { dayMode } from '../lib/rotation'
 
 // Family channel: adult children far away (Peter in München, Erika in Frankfurt) keep an eye on a parent
 // who may not own a smartphone. They only see what the parent agreed to share — never medical details.
@@ -382,6 +383,7 @@ function Appointments({ r, state, d, lang }) {
             return (
               <div key={day.day} className="rounded-xl border border-slate-200 p-2 text-sm">
                 <p className="font-medium">{dayName(day.day)} · {day.who}</p>
+                <p className="text-xs text-slate-500">{dayMode(day, lang).label}</p>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {free.map((s) => (
                     <button key={s.time} onClick={() => { actions.bookSlot(di, s.si, r.id); setOpen(false) }} className="rounded-lg bg-blue-100 px-2 py-1 text-blue-900 hover:bg-blue-200">
